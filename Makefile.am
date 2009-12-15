@@ -1,7 +1,9 @@
 bin_PROGRAMS = cy3240_i2c runTests
+lib_LTLIBRARIES = libcy3240.la
 
-cy3240_i2c_SOURCES = \
-	src/main.c \
+ACLOCAL_AMFLAGS= -I m4
+
+libcy3240_la_SOURCES = \
 	src/cy3240.c \
 	src/cy3240.h \
 	src/cy3240_util.c \
@@ -9,10 +11,16 @@ cy3240_i2c_SOURCES = \
 	src/cy3240_debug.c \
 	src/cy3240_debug.h \
 	src/cy3240_packet.h \
-	src/cy3240_types.h \
+	src/cy3240_types.h
+
+libcy3240_la_LIBADD= -lusb -lhid
+
+cy3240_i2c_SOURCES = \
+	src/main.c \
 	src/i2c_demo.h
 
-cy3240_i2c_LDADD= -lusb -lhid
+
+cy3240_i2c_LDADD= -lusb -lhid -lcy3240
 
 AM_CPPFLAGS=-I aceunit/src/native -I src -DACEUNIT_SUITES
 
@@ -20,14 +28,6 @@ runTests_SOURCES = \
 	src/tests/Suite1.c \
 	src/tests/writeTest.c \
 	src/tests/writeTest.h \
-	src/cy3240.c \
-	src/cy3240.h \
-	src/cy3240_util.c \
-	src/cy3240_util.h \
-	src/cy3240_debug.c \
-	src/cy3240_debug.h \
-	src/cy3240_packet.h \
-	src/cy3240_types.h \
 	src/i2c_demo.h \
 	src/i2c_demo.h \
 	aceunit/src/native/AceUnit.c \
@@ -43,4 +43,4 @@ runTests_SOURCES = \
 	aceunit/src/native/ExceptionHandling.h
 
 # These are only used for reference
-runTests_LDADD= -lusb -lhid
+runTests_LDADD= -lusb -lhid -lcy3240
