@@ -10,6 +10,13 @@ To compile, use the standard GNU Autotools build procedure
  $ make
  $ sudo make install
 
+
+== Steps to debug ==
+Since this library is now compiled with libtool, you must specify the
+mode in libtool before starting your ddd or gdb debuggger.
+
+ $ libtool --mode=execute ddd ./cy3240_i2c
+
 == Introduction ==
 The library has been modified from the original version from WingNut
 
