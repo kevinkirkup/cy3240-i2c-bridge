@@ -16,7 +16,8 @@
 //@{
 
 #include <stdio.h>
-#include "cy3240.h"
+#include "hid.h"
+#include "cy3240_types.h"
 #include "cy3240_util.h"
 
 //@} End of Includes
@@ -27,14 +28,38 @@
 //@{
 
 //-----------------------------------------------------------------------------
-/**
- *  Method to check the serial number of the specified device
- *
- *  @param usbdev [in] The handle to the usb device
- *  @param custom [in] The serial number to check
- *  @param len    [in] The length of the custom serial number
- *  @returns true if the serial number matches the current device, otherwise, false
- */
+Cy3240_Error_t
+cy3240_util_factory (
+          Cy3240_t* pCy3240,
+          int iface_number,
+          int timeout,
+          Cy3240_Power_t power,
+          Cy3240_Bus_t bus,
+          Cy3240_I2C_ClockSpeed_t clock
+          )
+{
+     // Check the parameters
+     if (pCy3240 != NULL) {
+
+          // Initialize the Cy3240 data structure
+          pCy3240->vendor_id = CY3240_VID;
+          pCy3240->product_id = CY3240_PID;
+          pCy3240->iface_number = iface_number;
+          pCy3240->timeout = timeout;
+          pCy3240->power = power;
+          pCy3240->bus = bus;
+          pCy3240->clock = clock;
+          pCy3240->init = hid_init;
+          pCy3240->write = hid_interrupt_write;
+          pCy3240->read = hid_interrupt_read;
+
+          return CY3240_ERROR_OK;
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
+
+}   /* -----  end of function cy3240_util_factory  ----- */
+
 //-----------------------------------------------------------------------------
 bool
 cy3240_util_match_serial_number(

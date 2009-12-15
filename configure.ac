@@ -11,6 +11,7 @@ AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_C99
 
 # Checks for header files.
 AC_CHECK_HEADERS([string.h unistd.h])

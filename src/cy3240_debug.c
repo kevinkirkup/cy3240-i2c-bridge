@@ -46,10 +46,10 @@
  *  Method to print the USB packet
  *
  *  @param buffer[in] the receive buffer to print
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_debug_print_packet(
     const uint8* const buffer,
     uint16 length
@@ -91,10 +91,10 @@ cy3240_debug_print_packet(
  *
  *  @param buffer [in] The send buffer
  *  @param length [in] The length of the send buffer
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_debug_print_send_packet(
           const uint8* const buffer,
           uint16 length
@@ -164,10 +164,10 @@ cy3240_debug_print_send_packet(
  *
  *  @param packet [in] the control packet
  *  @param length [in] the length of the control packet
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_debug_print_receive_control_packet(
           const uint8* const packet,
           uint16 length

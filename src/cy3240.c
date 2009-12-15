@@ -45,6 +45,13 @@
 /// @name Defines
 //@{
 
+#define SEND_PACKET_LEN (64)
+#define RECV_PACKET_LEN (64)
+
+/* Result Macros */
+#define HID_SUCCESS(s)  ((s == HID_RET_SUCCESS) ? TRUE : FALSE)
+#define HID_FAILURE(s)  ((s != HID_RET_SUCCESS) ? TRUE : FALSE)
+
 //@} End of Defines
 
 
@@ -67,7 +74,7 @@ char SEND_PACKET[SEND_PACKET_LEN] = {
 };
 
 // The receive buffer
-char RECV_PACKET[SEND_PACKET_LEN] = {
+char RECV_PACKET[RECV_PACKET_LEN] = {
      0x03, 0x02, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
@@ -137,10 +144,10 @@ disable_hid_debug(
  *  @param pSendLength    [in] the length of the send data
  *  @param pReceiveData   [out] the data received from the Cypress 3240
  *  @param pReceiveLength [out] the length of the received data
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-static CY3240_Error_t
+static Cy3240_Error_t
 transcieve(
           const Cy3240_t* const pCy3240,
           const uint8* const pSendData,
@@ -149,39 +156,48 @@ transcieve(
           uint16* const pReceiveLength
           )
 {
-     hid_return error = HID_RET_SUCCESS;
+     if ((pCy3240 != NULL) &&
+         (pSendData != NULL) &&
+         (pSendLength != NULL) &&
+         (*pSendLength != 0) &&
+         (pReceiveData != NULL) &&
+         (pReceiveLength != NULL) &&
+         (*pReceiveLength != 0)) {
 
-     CY3240_DEBUG_PRINT_TX_PACKET(pSendData, *pSendLength);
+          hid_return error = HID_RET_SUCCESS;
 
-     // Write the data to the USB HID device
-     error = hid_interrupt_write(
-               pCy3240->pHid,
-               OUTPUT_ENDPOINT,
-               pSendData,
-               SEND_PACKET_LEN,
-               pCy3240->timeout);
+          CY3240_DEBUG_PRINT_TX_PACKET(pSendData, *pSendLength);
 
-     if (error != HID_RET_SUCCESS) {
-       fprintf(stderr, "hid_set_output_report failed with return code %d\n", error);
-       return CY3240_ERROR_HID;
+          // Write the data to the USB HID device
+          error = pCy3240->write(
+                    pCy3240->pHid,
+                    OUTPUT_ENDPOINT,
+                    pSendData,
+                    SEND_PACKET_LEN,
+                    pCy3240->timeout);
+
+          if (error != HID_RET_SUCCESS) {
+            fprintf(stderr, "hid_set_output_report failed with return code %d\n", error);
+            return CY3240_ERROR_HID;
+          }
+
+          // Read the response data from the USB HID device
+          error = pCy3240->read(
+                    pCy3240->pHid,
+                    INPUT_ENDPOINT,
+                    pReceiveData,
+                    RECV_PACKET_LEN,
+                    pCy3240->timeout);
+
+          if (error != HID_RET_SUCCESS) {
+            fprintf(stderr, "hid_get_input_report failed with return code %d\n", error);
+            return CY3240_ERROR_HID;
+          }
+
+          CY3240_DEBUG_PRINT_RX_PACKET(pReceiveData, *pReceiveLength);
+
+          return CY3240_ERROR_OK;
      }
-
-     // Read the response data from the USB HID device
-     error = hid_interrupt_read(
-               pCy3240->pHid,
-               INPUT_ENDPOINT,
-               pReceiveData,
-               RECV_PACKET_LEN,
-               pCy3240->timeout);
-
-     if (error != HID_RET_SUCCESS) {
-       fprintf(stderr, "hid_get_input_report failed with return code %d\n", error);
-       return CY3240_ERROR_HID;
-     }
-
-     CY3240_DEBUG_PRINT_RX_PACKET(pReceiveData, *pReceiveLength);
-
-     return CY3240_ERROR_OK;
 }
 
 
@@ -191,10 +207,10 @@ transcieve(
  *
  *  @param pCy3240 [in] the CY3240 state
  *  @param pLength [out] the length of the reconfigure data
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-static CY3240_Error_t
+static Cy3240_Error_t
 pack_reconfigure(
           const Cy3240_t* const pCy3240,
           uint16* const pLength
@@ -221,7 +237,7 @@ pack_reconfigure(
           return CY3240_ERROR_OK;
      }
 
-     return CY3240_ERROR_TX;
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }   /* -----  end of static function pack_reconfigure  ----- */
 
 //-----------------------------------------------------------------------------
@@ -229,27 +245,32 @@ pack_reconfigure(
  *  Method to pack the reconfigure packet for the bridge controller
  *
  *  @param pLength [out] the length of the reinit data
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-static CY3240_Error_t
+static Cy3240_Error_t
 pack_reinit(
           uint16* const pLength
           )
 {
-     // Initialize the byte index
-     uint8 byteIndex = 0;
+     if (pLength != NULL) {
 
-     SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_REINIT;
-     SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
+          // Initialize the byte index
+          uint8 byteIndex = 0;
 
-     // Set the control address
-     SEND_PACKET[byteIndex++] = CONTROL_I2C_ADDRESS;
+          SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_REINIT;
+          SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
 
-     // Set the length
-     *pLength = byteIndex + 1;
+          // Set the control address
+          SEND_PACKET[byteIndex++] = CONTROL_I2C_ADDRESS;
 
-     return CY3240_ERROR_OK;
+          // Set the length
+          *pLength = byteIndex + 1;
+
+          return CY3240_ERROR_OK;
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }   /* -----  end of static function pack_reconfigure  ----- */
 
 
@@ -262,10 +283,10 @@ pack_reinit(
  *  @param pSendLength [in] the length of the data to send
  *  @param first       [in] is this the first packet
  *  @param more        [in] are there more packets
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 pack_write_input(
           uint8 address,
           const uint8* const pSendData,
@@ -305,7 +326,7 @@ pack_write_input(
           return CY3240_ERROR_OK;
      }
 
-     return CY3240_ERROR_TX;
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }   /* -----  end of static function pack_write  ----- */
 
 //-----------------------------------------------------------------------------
@@ -315,10 +336,10 @@ pack_write_input(
  *  @param pWriteLength [in] the number of bytes written
  *  @param pReadLength  [in] the number of bytes read
  *  @param pBytesLeft   [out] the number of bytes left to send
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-static CY3240_Error_t
+static Cy3240_Error_t
 unpack_write_output(
           const uint16* const pWriteLength,
           const uint16* const pReadLength,
@@ -356,7 +377,7 @@ unpack_write_output(
           return CY3240_ERROR_OK;
      }
 
-     return CY3240_ERROR_TX;
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }
 
 
@@ -368,10 +389,10 @@ unpack_write_output(
  *  @param pReadLength [in] the length of bytes to read
  *  @param first       [in] is this the first read
  *  @param more        [in] is there more data to read
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-static CY3240_Error_t
+static Cy3240_Error_t
 pack_read_input (
           uint8 address,
           uint16* const pReadLength,
@@ -414,10 +435,10 @@ pack_read_input (
  *
  *  @param pData   [out] the buffer to read the data into
  *  @param pLength [in] the amount of data to read
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-static CY3240_Error_t
+static Cy3240_Error_t
 unpack_read_output (
           uint8* const pData,
           const uint16* const pLength
@@ -447,17 +468,18 @@ unpack_read_output (
 //@{
 
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_reconfigure(
           const Cy3240_t* const pCy3240,
           bool restart,
           bool reinit
           )
 {
-     CY3240_Error_t result = CY3240_ERROR_OK;
 
      // Check the parameters
      if (pCy3240 != NULL) {
+
+          Cy3240_Error_t result = CY3240_ERROR_OK;
 
           uint16 writeLength = 0;
           uint16 readLength = 0;
@@ -501,14 +523,16 @@ cy3240_reconfigure(
                     printf("\nFailed to transmit write packet");
           }
 
+          return result;
+
      }
 
-     return result;
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }
 
 
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_write(
           Cy3240_t* const pCy3240,
           uint8 address,
@@ -516,11 +540,12 @@ cy3240_write(
           uint16* const pLength
           )
 {
-     CY3240_Error_t result = CY3240_ERROR_OK;
 
      if ((pData != NULL) &&
          (pLength != NULL) &&
          (*pLength != 0)) {
+
+          Cy3240_Error_t result = CY3240_ERROR_OK;
 
           // TODO: Move the WriteStart point after each write
           uint16 writeLength;
@@ -594,11 +619,11 @@ cy3240_write(
           return result;
      }
 
-     return CY3240_ERROR_TX;
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }
 
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_read(
           const Cy3240_t* const pCy3240,
           uint8 address,
@@ -612,7 +637,7 @@ cy3240_read(
          (pLength != NULL) &&
          (*pLength != 0)) {
 
-          CY3240_Error_t result = CY3240_ERROR_OK;
+          Cy3240_Error_t result = CY3240_ERROR_OK;
 
           // TODO: Move the ReadStart point after each write
           uint16 readLength;
@@ -684,6 +709,79 @@ cy3240_read(
                first = false;
           }
 
+          return result;
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
+}
+
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_open(
+          Cy3240_t* const pCy3240
+          )
+{
+
+     if (pCy3240 != NULL) {
+
+          hid_return error = HID_RET_SUCCESS;
+
+          HIDInterfaceMatcher matcher = {pCy3240->vendor_id, pCy3240->product_id, NULL, NULL, 0};
+
+#ifdef DEBUG
+          error = enable_hid_debug();
+          if (HID_FAILURE(error)) {
+               fprintf(stderr, "hid debug enable failed with return code %d\n", error);
+               return CY3240_ERROR_HID;
+          }
+#endif
+
+          // Initialize the device
+          error = pCy3240->init();
+          if (HID_FAILURE(error)) {
+               fprintf(stderr, "hid_init failed with return code %d\n", error);
+               return CY3240_ERROR_HID;
+          }
+
+          // Create the interface to the device
+          pCy3240->pHid = hid_new_HIDInterface();
+          if (pCy3240->pHid == 0) {
+               fprintf(stderr, "hid_new_HIDInterface() failed, out of memory?\n");
+               return CY3240_ERROR_HID;
+          }
+
+          // For open the usb device
+          error = hid_force_open(
+                    pCy3240->pHid,
+                    pCy3240->iface_number,
+                    &matcher,
+                    3);
+          if (HID_FAILURE(error)) {
+               fprintf(stderr, "hid_force_open failed with return code %d\n", error);
+               return CY3240_ERROR_HID;
+          }
+
+#ifdef DEBUG
+
+          error = hid_write_identification(stdout, pCy3240->pHid);
+          if (HID_FAILURE(error)) {
+               fprintf(stderr, "hid_write_identification failed with return code %d\n", error);
+               return CY3240_ERROR_HID;
+          }
+
+          error = hid_dump_tree(stdout, pCy3240->pHid);
+          if (HID_FAILURE(error)) {
+               fprintf(stderr, "hid_dump_tree failed with return code %d\n", error);
+               return CY3240_ERROR_HID;
+          }
+
+          // Disable HID debugging
+          error = disable_hid_debug();
+          if (HID_FAILURE(error)) {
+               fprintf(stderr, "hid debug disable failed with return code %d\n", error);
+               return CY3240_ERROR_HID;
+          }
+#endif
           return CY3240_ERROR_OK;
      }
 
@@ -691,93 +789,34 @@ cy3240_read(
 }
 
 //-----------------------------------------------------------------------------
-CY3240_Error_t
-cy3240_open(
-          int iface_num,
-          Cy3240_t* const pCy3240
-          )
-{
-     hid_return error = HID_RET_SUCCESS;
-     HIDInterfaceMatcher matcher = {pCy3240->vendor_id, pCy3240->product_id, NULL, NULL, 0};
-
-#ifdef DEBUG
-     error = enable_hid_debug();
-     if (error != HID_RET_SUCCESS) {
-          fprintf(stderr, "hid debug enable failed with return code %d\n", error);
-          return CY3240_ERROR_HID;
-     }
-#endif
-
-     // Initialize the device
-     error = hid_init();
-     if (error != HID_RET_SUCCESS) {
-          fprintf(stderr, "hid_init failed with return code %d\n", error);
-          return CY3240_ERROR_HID;
-     }
-
-     // Create the interface to the device
-     pCy3240->pHid = hid_new_HIDInterface();
-     if (pCy3240->pHid == 0) {
-          fprintf(stderr, "hid_new_HIDInterface() failed, out of memory?\n");
-          return CY3240_ERROR_HID;
-     }
-
-     // For open the usb device
-     error = hid_force_open(pCy3240->pHid, iface_num, &matcher, 3);
-     if (error != HID_RET_SUCCESS) {
-          fprintf(stderr, "hid_force_open failed with return code %d\n", error);
-          return CY3240_ERROR_HID;
-     }
-
-#ifdef DEBUG
-
-     error = hid_write_identification(stdout, pCy3240->pHid);
-     if (error != HID_RET_SUCCESS) {
-          fprintf(stderr, "hid_write_identification failed with return code %d\n", error);
-          return error;
-     }
-
-     error = hid_dump_tree(stdout, pCy3240->pHid);
-     if (error != HID_RET_SUCCESS) {
-          fprintf(stderr, "hid_dump_tree failed with return code %d\n", error);
-          return error;
-     }
-
-     // Disable HID debugging
-     error = disable_hid_debug();
-     if (error != HID_RET_SUCCESS) {
-          fprintf(stderr, "hid debug disable failed with return code %d\n", error);
-          return CY3240_ERROR_HID;
-     }
-#endif
-
-     return CY3240_ERROR_OK;
-}
-
-//-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_close(
           Cy3240_t* const pCy3240
           )
 {
-     hid_return error = HID_RET_SUCCESS;
+     if (pCy3240 != NULL) {
 
-     /* End Cypress Customizations */
-     error = hid_close(pCy3240->pHid);
-     if (error != HID_RET_SUCCESS) {
-       fprintf(stderr, "hid_close failed with return code %d\n", error);
-       return CY3240_ERROR_HID;
+          hid_return error = HID_RET_SUCCESS;
+
+          /* End Cypress Customizations */
+          error = hid_close(pCy3240->pHid);
+          if (error != HID_RET_SUCCESS) {
+            fprintf(stderr, "hid_close failed with return code %d\n", error);
+            return CY3240_ERROR_HID;
+          }
+
+          hid_delete_HIDInterface(&pCy3240->pHid);
+
+          error = hid_cleanup();
+          if (error != HID_RET_SUCCESS) {
+            fprintf(stderr, "hid_cleanup failed with return code %d\n", error);
+            return CY3240_ERROR_HID;
+          }
+
+          return CY3240_ERROR_OK;
      }
 
-     hid_delete_HIDInterface(&pCy3240->pHid);
-
-     error = hid_cleanup();
-     if (error != HID_RET_SUCCESS) {
-       fprintf(stderr, "hid_cleanup failed with return code %d\n", error);
-       return CY3240_ERROR_HID;
-     }
-
-     return CY3240_ERROR_OK;
+     return CY3240_ERROR_INVALID_PARAMETERS;
 }
 
 //@} End of Methods

@@ -5,3 +5,18 @@
 # *.[oa]
 # *~
 *.swp
+tags
+Makefile
+Makefile.in
+aclocal.m4
+config.h
+config.h.in
+config.log
+config.status
+configure
+*.[oa]
+stamp-h1
+cy3240_i2c
+.deps
+autom4te.cache
+runTests

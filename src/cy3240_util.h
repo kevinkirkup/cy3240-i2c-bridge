@@ -34,6 +34,28 @@ extern "C" {
 
 //-----------------------------------------------------------------------------
 /**
+ *  Factory method to initialize the Cy3240 data structure and internal state
+ *
+ *  @param pCy3240      [out] the data structure to initialize
+ *  @param iface_number [in] the interface number of the device
+ *  @param timeout      [in] the timeout for tx and rx
+ *  @param power        [in] the power mode to use
+ *  @param bus          [in] the bus type to use
+ *  @param clock        [in] the I2C clock rate to use
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_util_factory (
+          Cy3240_t* pCy3240,
+          int iface_number,
+          int timeout,
+          Cy3240_Power_t power,
+          Cy3240_Bus_t bus,
+          Cy3240_I2C_ClockSpeed_t clock
+          );
+//-----------------------------------------------------------------------------
+/**
  *  Method to check the serial number of the specified device
  *
  *  @param usbdev [in] The handle to the usb device
@@ -48,50 +70,6 @@ cy3240_util_match_serial_number(
     void* custom,
     unsigned int len
     );
-
-//-----------------------------------------------------------------------------
-/**
- *  Method to print the USB packet
- *
- *  @param buffer[in] the receive buffer to print
- *  @returns 0
- */
-//-----------------------------------------------------------------------------
-CY3240_Error_t
-cy3240_util_print_packet(
-    const uint8* const buffer,
-    uint16 length
-    );
-
-//-----------------------------------------------------------------------------
-/**
- *  Method to print out the sending packet to the USB device
- *
- *  @param buffer [in] The send buffer
- *  @returns 0
- */
-//-----------------------------------------------------------------------------
-CY3240_Error_t
-cy3240_util_print_send_packet(
-          const uint8* const buffer,
-          uint16 length
-          );
-
-//-----------------------------------------------------------------------------
-/**
- *  Method to print to information in the received control packet from the
- *  CY3240
- *
- *  @param packet [in] the control packet
- *
- *  @returns 0
- */
-//-----------------------------------------------------------------------------
-CY3240_Error_t
-cy3240_util_print_receive_control_packet(
-          const uint8* const packet,
-          uint16 length
-          );
 
 //@} End of Methods
 

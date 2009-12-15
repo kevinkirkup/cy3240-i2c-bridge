@@ -49,7 +49,7 @@ extern "C" {
  *  @returns 0
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_debug_print_packet(
     const uint8* const buffer,
     uint16 length
@@ -63,7 +63,7 @@ cy3240_debug_print_packet(
  *  @returns 0
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_debug_print_send_packet(
           const uint8* const buffer,
           uint16 length
@@ -79,7 +79,7 @@ cy3240_debug_print_send_packet(
  *  @returns 0
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_debug_print_receive_control_packet(
           const uint8* const packet,
           uint16 length

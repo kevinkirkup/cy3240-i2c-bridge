@@ -22,7 +22,6 @@ extern "C" {
 /// @name Includes
 //@{
 
-#include <hid.h>
 #include "cy3240_types.h"
 
 //@} End of Includes
@@ -48,22 +47,6 @@ extern "C" {
 //@} End of Defines
 
 //////////////////////////////////////////////////////////////////////
-/// @name Data
-//@{
-
-#define SEND_PACKET_LEN (64)
-#define RECV_PACKET_LEN (64)
-
-// TODO: TEMPORARY Remove later
-extern const int INPUT_ENDPOINT;
-extern const int OUTPUT_ENDPOINT;
-
-extern char SEND_PACKET[SEND_PACKET_LEN];
-extern char RECV_PACKET[SEND_PACKET_LEN];
-//@} End of Data
-//@} End of Defines
-
-//////////////////////////////////////////////////////////////////////
 /// @name Methods
 //@{
 
@@ -72,10 +55,10 @@ extern char RECV_PACKET[SEND_PACKET_LEN];
  *  Method to write data to the CY3240
  *
  *  @param[in,out]
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_write(
           Cy3240_t* const pCy3240,
           uint8 address,
@@ -88,10 +71,10 @@ cy3240_write(
  *  Method to read data from the CY3240
  *
  *  @param[in,out]
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_read(
           const Cy3240_t* const pCy3240,
           uint8 address,
@@ -104,12 +87,11 @@ cy3240_read(
  *  Method to open the CY3240
  *
  *  @param iface_num [in] the usb interface number
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_open(
-          int iface_num,
           Cy3240_t* const pCy3240
           );
 
@@ -118,10 +100,10 @@ cy3240_open(
  *  Method to close the CY3240 usb device
  *
  *  @param[in,out]
- *  @returns CY3240_Error_t
+ *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-CY3240_Error_t
+Cy3240_Error_t
 cy3240_close(
           Cy3240_t* const pCy3240
           );

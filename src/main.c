@@ -42,30 +42,20 @@
 //-----------------------------------------------------------------------------
 /**
  *  Method to parse the command line arguments
- *  Currently, we only accept the "-d" flag, which works like "lsusb", and the
- *  "-i" flag to select the interface (default 0). The syntax is one of the
- *  following:
+ *  Currently, we only accept the "-i" flag to select the interface (default 0).
+ *  The syntax is one of the following:
  *
- *  $ test_libhid -d 1234:
- *  $ test_libhid -d :5678
- *  $ test_libhid -d 1234:5678
- *
- *  Product and vendor IDs are assumed to be in hexadecimal.
- *
- *  TODO: error checking and reporting.
+ *  $ test_libhid
+ *  $ test_libhid -i 1
  *
  *  @param argc       [in]  The number of arguments
  *  @param argv       [in]  The command line arguments
- *  @param vendor_id  [out] The vendor id
- *  @param product_id [out] The product id
  */
 //-----------------------------------------------------------------------------
 static void
 parse_arguments (
           int argc,
           char *argv[],
-          uint16 *vendor_id,
-          uint16 *product_id,
           int *iface_num
           )
 {
@@ -74,23 +64,10 @@ parse_arguments (
      int flag;
 
      // Iterate through all of the command line arguments
-     while((flag = getopt(argc, argv, "d:i:")) != -1) {
+     while((flag = getopt(argc, argv, "i:")) != -1) {
 
           // Check the current argument
           switch (flag) {
-
-               // The usb device id
-               case 'd':
-                    product = optarg;
-                    vendor = strsep(&product, ":");
-
-                    if(vendor && *vendor) {
-                         vendor_id = strtol(vendor, NULL, 16);
-                    }
-                    if(product && *product) {
-                         product_id = strtol(product, NULL, 16);
-                    }
-                    break;
 
                // The usb interface
                case 'i':
@@ -169,24 +146,23 @@ main(
      uint8 data[8] = {0};
      uint16 length = 0;
 
-     uint16 vendor_id = CY3240_VID;
-     uint16 product_id = CY3240_PID;
-
      // Parse the command line arguments
-     parse_arguments(argc, argv, vendor_id, product_id, &iface_num);
+     parse_arguments(argc, argv, &iface_num);
 
-     fprintf(stderr, "VendorID: 0x%04x, ProductID: 0x%04x, Interface: %i\n", vendor_id, product_id, iface_num);
+     fprintf(stderr, "Interface: %i\n", iface_num);
 
      // Initialize the device
-     cy3240.vendor_id = vendor_id;
-     cy3240.product_id = product_id;
-     cy3240.timeout = 1000;
-     cy3240.power = CY3240_POWER_5V;
-     cy3240.bus = CY3240_BUS_I2C;
-     cy3240.clock = CY3240_100kHz;
+     cy3240_util_factory(
+               &cy3240,
+               iface_num,
+               1000,
+               CY3240_POWER_5V,
+               CY3240_BUS_I2C,
+               CY3240_100kHz
+               );
 
      // Open the device
-     cy3240_open(iface_num, &cy3240);
+     cy3240_open(&cy3240);
 
      /* Read the configuration from an undefined address
       * I think this is M8C_SetBank1
