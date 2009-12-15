@@ -1,0 +1,237 @@
+== Version ==
+0.0.1
+
+== Introduction ==
+This code exercises the CY3240 development kit from Cypress Semiconductor.  
+The kit contains 2 boards.  The primary board contains the controller that
+switches on and off 3.3V and 5V power, a couple LEDs and has a couple pads for
+GPIO pins.  The primary board and I2C to USB path is controlled by a Cypress
+Semiconductor CY8C24894-24L (http://www.cypress.com/?rID=3371).  There is also
+a Maxim MAX3378 (http://www.maxim-ic.com/quick_view2.cfm/qv_pk/3253/t/al) level
+translator and a Littlefuse SP721
+(http://www.littelfuse.com/data/en/Data_Sheets/SP721.pdf) overvoltage /
+undervoltage protection IC.
+
+The kit also ships with an example board, carrying a Cypress Semiconductor
+CY8C21123-24SXI (http://www.cypress.com/?rID=3335) 8 pin PSoC and a couple
+LEDs.
+
+The example code defines some of the registers, control bits to send, etc.  It
+also powers the example device to 5V, blinks both LEDs on the example device,
+then powers off the device.
+
+== Steps to compile ==
+This code requires libhid, libhid-dev, and libusb:
+gcc -w -Wall -lhid -lusb test_cypress.c -o test_cypress
+
+== Steps to get the device working ==
+
+1. Determine usage paths
+using the notes in test_hidlib.c for how to read and write from a device, run:
+libhid_detach_device 04b4:f232
+lsusb -d 0x04b4:0f232 -vvv
+
+it should output something like this:
+
+Bus 002 Device 007: ID 04b4:f232 Cypress Semiconductor Corp. 
+Device Descriptor:
+  [...]
+  Configuration Descriptor:
+    [...]
+    Interface Descriptor:
+      [...]
+      iInterface              3 HID R_W8
+        HID Device Descriptor:
+          [...]
+          Report Descriptor: (length is 37)
+            Item(Global): Usage Page, data= [ 0xa0 0xff ] 65440
+            [...]
+            Item(Local ): Usage, data= [ 0x01 ] 1
+            [...]
+            Item(Local ): Usage, data= [ 0x02 ] 2
+            [...]
+            Item(Local ): Usage, data= [ 0x03 ] 3
+            [...]
+            Item(Main  ): Output, data= [ 0x02 ] 2
+            [...]
+            Item(Local ): Usage, data= [ 0x04 ] 4
+            [...]
+            Item(Main  ): Input, data= [ 0x02 ] 2
+
+So working backwards:
+  "Item(Main  ): Input, data= [ 0x02 ] 2" is usage 4 of usage page 65440
+  which is rooted at "Item(Local ): Usage, data= [ 0x02 ] 2"
+  which is rooted at "Item(Local ): Usage, data= [ 0x01 ] 1"
+
+giving the input path of:
+  65440 << 16 + 1  -> 0xffa0 0001
+  65440 << 16 + 2  -> 0xffa0 0002
+  65440 << 16 + 4  -> 0xffa0 0004
+
+And the output path of
+  65440 << 16 + 1  -> 0xffa0 0001
+  65440 << 16 + 2  -> 0xffa0 0002
+  65440 << 16 + 3  -> 0xffa0 0003
+
+These are the paths to the control nodes in the device.  However, the code that
+is shipped with the device doesn't use these paths.  Instead, the interrupt 
+endpoints are used, and we'll see in the captured USB packets.  Later on in the
+same lsusb dump are the lines:
+Endpoint Descriptor:
+  bLength                 7
+  bDescriptorType         5
+  bEndpointAddress     0x01  EP 1 OUT
+  bmAttributes            3
+    Transfer Type            Interrupt
+    Synch Type               None
+    Usage Type               Data
+  wMaxPacketSize     0x0040  1x 64 bytes
+  bInterval               1
+Endpoint Descriptor:
+  bLength                 7
+  bDescriptorType         5
+  bEndpointAddress     0x82  EP 2 IN
+  bmAttributes            3
+    Transfer Type            Interrupt
+    Synch Type               None
+    Usage Type               Data
+  wMaxPacketSize     0x0040  1x 64 bytes
+  bInterval               1
+
+Which means that there are 2 interrupts, one input interrupt (EP 2 IN at
+endpoint address 0x82) and one output interrupt (EP 1 OUT at endpoint address
+0x01).  As Cypress defines in their datasheet, these accept packets of 64
+bytes.  This means that communication should take place using the
+hid_interrupt_read() and hid_interrupt_write() functions.
+
+----
+3. Use USBSnoop to get control packet information
+I used the one from:
+http://www.pcausa.com/Utilities/UsbSnoop/
+because they have a 64 bit windows compile, and i only have 64 bit win2k3
+
+A couple things to look at:
+a.) There are periodic reads:
+[43665 ms]  >>>  URB 17 going down  >>> 
+-- URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
+  PipeHandle           = e79e99c8 [endpoint 0x00000001]
+  TransferFlags        = 00000002 (USBD_TRANSFER_DIRECTION_OUT, USBD_SHORT_TRANS
+  TransferBufferLength = 00000040
+  TransferBuffer       = e51f82da
+  TransferBufferMDL    = 00000000
+    00000000: 03 02 80 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  UrbLink              = 00000000
+[43667 ms] UsbSnoop - MyInternalIOCTLCompletion(e2d37ddc) : fido=ff503830, Irp=f
+[43667 ms]  <<<  URB 17 coming back  <<<
+
+Looks like it happens every 250 ms.  According to the Cyress Documentation,
+this is a read and start condition (0x03), length of 2 bytes (0x02) and the
+last word in the packet, using address 0x80, and the data is 0x0000.  This is
+to check the status of the device and update the GUI.
+
+b.) Following every read is the returned status of the device:
+[43668 ms]  >>>  URB 18 going down  >>> 
+-- URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
+  PipeHandle           = e79e99f8 [endpoint 0x00000082]
+  TransferFlags        = 00000003 (USBD_TRANSFER_DIRECTION_IN, USBD_SHORT_TRANSF
+  TransferBufferLength = 00000040
+  TransferBuffer       = e7176a70
+  TransferBufferMDL    = 00000000
+  UrbLink              = 00000000
+[43920 ms] UsbSnoop - FilterDispatchAny(e2d37b90) : IRP_MJ_INTERNAL_DEVICE_CONTR
+[43920 ms] UsbSnoop - FdoHookDispatchInternalIoctl(e2d37f8c) : fdo=ff4bd960, Irp
+
+which takes a while (about 500 ms) to return:
+
+[44184 ms]  <<<  URB 18 coming back  <<< 
+-- URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
+  PipeHandle           = e79e99f8 [endpoint 0x00000082]
+  TransferFlags        = 00000003 (USBD_TRANSFER_DIRECTION_IN, USBD_SHORT_TRANSF
+  TransferBufferLength = 00000040
+  TransferBuffer       = e7176a70
+  TransferBufferMDL    = e6dcabf0
+    00000000: 01 00 00 00 01 01 16 00 a5 00 00 00 00 00 00 00
+    00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  UrbLink              = 00000000
+[44184 ms] UsbSnoop - FilterDispatchAny(e2d37b90) : IRP_MJ_INTERNAL_DEVICE_CONTR
+
+Again, according to the Cypress documentation, this is a status of 0x01, and
+the data returned is 0x0000 0001 0116 00a5
+
+c.) Here's a write...apply 5v power
+[83953 ms]  >>>  URB 97 going down  >>> 
+-- URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
+  PipeHandle           = e79e99c8 [endpoint 0x00000001]
+  TransferFlags        = 00000002 (USBD_TRANSFER_DIRECTION_OUT, USBD_SHORT_TRANS
+  TransferBufferLength = 00000040
+  TransferBuffer       = e50b32da
+  TransferBufferMDL    = 00000000
+    00000000: 02 01 80 01 00 00 00 00 00 00 00 00 00 00 00 00
+    00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  UrbLink              = 00000000
+[83955 ms] UsbSnoop - MyInternalIOCTLCompletion(e2d37ddc) : fido=ff503830, Irp=e
+[83955 ms]  <<<  URB 97 coming back  <<< 
+
+This is a write and start (0x02), length of 0x01, address of 0x80, and data of
+0x01
+
+d.) This is setting one of the LEDs
+[158175 ms]  >>>  URB 765 going down  >>> 
+-- URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
+  PipeHandle           = e79e99c8 [endpoint 0x00000001]
+  TransferFlags        = 00000002 (USBD_TRANSFER_DIRECTION_OUT,
+USBD_SHORT_TRANS
+  TransferBufferLength = 00000040
+  TransferBuffer       = e51612da
+  TransferBufferMDL    = 00000000
+    00000000: 0a 08 00 00 00 00 00 00 02 ff 01 00 00 00 00 00
+    00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  UrbLink              = 00000000
+[158176 ms] UsbSnoop - MyInternalIOCTLCompletion(e2d37ddc) : fido=ff503830,
+Irp=
+[158177 ms]  <<<  URB 765 coming back  <<< 
+
+This is a start and stop (0x0a), length of 0x08, address 0x00, data of 
+0x0000 0000 0002 ff01.  This is setting LED 2 to a value of 0xFF
+
+---
+4. Using this information and the datasheet, we extract the info we need:
+All transfers occur as:
+URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER
+
+Every packet is 64 bytes.
+
+Only the interrupt endpoints are read / written:
+  PipeHandle           = e79e99f8 [endpoint 0x00000082]
+  PipeHandle           = e79e99c8 [endpoint 0x00000001]
+
+And the data is defined in the datasheet.  With all that info, the reads and
+writes look something like:
+
+    SEND_PACKET[0] = I2C_WRITE | I2C_START | I2C_STOP;
+    SEND_PACKET[1] = I2C_LAST_PACKET | 0x08;
+    SEND_PACKET[2] = PSOC;
+    SEND_PACKET[3] = 0x00;
+    SEND_PACKET[LED_NUMBER] = 0x01;
+    SEND_PACKET[BRIGHTNESS] = ~SEND_PACKET[BRIGHTNESS];
+    SEND_PACKET[UNK_7] = 0x01;
+    ret = hid_interrupt_write(hid, OUTPUT_ENDPOINT, SEND_PACKET, SEND_PACKET_LEN, timeout);
+
+    ret = hid_interrupt_read(hid, INPUT_ENDPOINT, &RECV_PACKET, RECV_PACKET_LEN, timeout);
+
+Later, I'll attach a generic I2C device and read / write the device.
+
+
+== Author ==
+Wingnut
+FIXIT wingnut dot foss FIXIT @ gmail dot FIXIT com
+(remove the words FIXIT and the space and change dot to . for a valid address)

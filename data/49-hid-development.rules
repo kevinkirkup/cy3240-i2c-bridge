@@ -1,0 +1,2 @@
+# Cypress CY3240-I2C USB Bridge
+SUBSYSTEM=="usb", SYSFS{idVendor}=="04b4", SYSFS{idProduct}=="f232", MODE="664", OWNER="1000", GROUP="0"
