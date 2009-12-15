@@ -1,7 +1,26 @@
 == Version ==
 0.0.1
 
+== Steps to compile ==
+This code requires libhid, libhid-dev, and libusb:
+
+To compile, use the standard GNU Autotools build procedure
+ $ autoreconf
+ $ ./configure
+ $ make
+ $ sudo make install
+
 == Introduction ==
+The library has been modified from the original version from WingNut
+
+FIXIT wingnut dot foss FIXIT @ gmail dot FIXIT com
+(remove the words FIXIT and the space and change dot to . for a valid address)
+
+     --Angrytuna
+
+Below are the comments from the original post:
+
+=== Overview ===
 This code exercises the CY3240 development kit from Cypress Semiconductor.  
 The kit contains 2 boards.  The primary board contains the controller that
 switches on and off 3.3V and 5V power, a couple LEDs and has a couple pads for
@@ -20,11 +39,8 @@ The example code defines some of the registers, control bits to send, etc.  It
 also powers the example device to 5V, blinks both LEDs on the example device,
 then powers off the device.
 
-== Steps to compile ==
-This code requires libhid, libhid-dev, and libusb:
-gcc -w -Wall -lhid -lusb test_cypress.c -o test_cypress
 
-== Steps to get the device working ==
+=== Notes of the how the underlying USB HID interfaces works ===
 
 1. Determine usage paths
 using the notes in test_hidlib.c for how to read and write from a device, run:
@@ -228,10 +244,3 @@ writes look something like:
 
     ret = hid_interrupt_read(hid, INPUT_ENDPOINT, &RECV_PACKET, RECV_PACKET_LEN, timeout);
 
-Later, I'll attach a generic I2C device and read / write the device.
-
-
-== Author ==
-Wingnut
-FIXIT wingnut dot foss FIXIT @ gmail dot FIXIT com
-(remove the words FIXIT and the space and change dot to . for a valid address)
