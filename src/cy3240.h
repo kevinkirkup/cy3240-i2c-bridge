@@ -108,6 +108,29 @@ cy3240_close(
           Cy3240_t* const pCy3240
           );
 
+//-----------------------------------------------------------------------------
+/**
+ *  Factory method to initialize the Cy3240 data structure and internal state
+ *
+ *  @param pCy3240      [out] the data structure to initialize
+ *  @param iface_number [in] the interface number of the device
+ *  @param timeout      [in] the timeout for tx and rx
+ *  @param power        [in] the power mode to use
+ *  @param bus          [in] the bus type to use
+ *  @param clock        [in] the I2C clock rate to use
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_util_factory (
+          Cy3240_t* pCy3240,
+          int iface_number,
+          int timeout,
+          Cy3240_Power_t power,
+          Cy3240_Bus_t bus,
+          Cy3240_I2C_ClockSpeed_t clock
+          );
+
 //@} End of Methods
 
 #ifdef __cplusplus
