@@ -16,6 +16,7 @@
 //@{
 
 #include "unittest.h"
+#include "cy3240_private_types.h"
 
 //@} End of Includes
 

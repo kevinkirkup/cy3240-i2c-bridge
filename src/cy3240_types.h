@@ -16,54 +16,12 @@
 extern "C" {
 #endif
 
-
-//////////////////////////////////////////////////////////////////////
-/// @name Includes
-//@{
-
-#include "hid.h"
-
-//@} End of Includes
-
-
 //////////////////////////////////////////////////////////////////////
 /// @name Types
 //@{
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
-
-/**
- * Function pointer for the HID write function
- */
-typedef hid_return
-(*hid_write_fpt)(
-          HIDInterface* const,
-          unsigned int const,
-          const char*,
-          unsigned int const,
-          unsigned int const
-          );
-
-/**
- * Function pointer for the HID read function
- */
-typedef hid_return
-(*hid_read_fpt)(
-          HIDInterface* const,
-          unsigned int const,
-          char* const,
-          unsigned int const,
-          unsigned int const
-          );
-
-/**
- * Function pointer for the HID init function
- */
-typedef hid_return
-(*hid_init_fpt)(
-          void
-          );
 
 /**
  * Common Error Codes
@@ -107,24 +65,6 @@ typedef enum {
      CY3240_POWER_5V       = 0x01,              ///< 5V Power
      CY3240_POWER_3_3V     = 0x02               ///< 3.3V Power
 } Cy3240_Power_t;
-
-/**
- * CY3240 device state structure
- */
-typedef struct {
-     uint16 vendor_id;                          ///< Vendor ID
-     uint16 product_id;                         ///< Product ID
-     int iface_number;                          ///< The interface number
-     int timeout;                               ///< USB Transfer timeout
-     Cy3240_I2C_ClockSpeed_t clock;             ///< The clock speed
-     Cy3240_Bus_t bus;                          ///< The bus configuration
-     Cy3240_Power_t power;                      ///< The power configuration
-     HIDInterface *pHid;                        ///< HID Interface
-     hid_init_fpt init;                         ///< Pointer to the hid init function
-     hid_write_fpt write;                       ///< Pointer to the hid write function
-     hid_read_fpt read;                         ///< Pointer to the hid read function
-
-} Cy3240_t;
 
 //@} End of Types
 

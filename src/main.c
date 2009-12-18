@@ -141,19 +141,22 @@ main(
      int retry;
 
      hid_return ret;
-     Cy3240_t cy3240 = {0};
+     int handle = 0;
 
      uint8 data[8] = {0};
      uint16 length = 0;
 
      // Parse the command line arguments
-     parse_arguments(argc, argv, &iface_num);
+     parse_arguments(
+               argc,
+               argv,
+               &iface_num);
 
      fprintf(stderr, "Interface: %i\n", iface_num);
 
      // Initialize the device
      cy3240_util_factory(
-               &cy3240,
+               &handle,
                iface_num,
                1000,
                CY3240_POWER_5V,
@@ -162,14 +165,14 @@ main(
                );
 
      // Open the device
-     cy3240_open(&cy3240);
+     cy3240_open(handle);
 
      /* Read the configuration from an undefined address
       * I think this is M8C_SetBank1
       */
      length = sizeof(data);
      cy3240_read(
-               &cy3240,
+               handle,
                CONTROL_1,
                data,
                &length);
@@ -178,8 +181,12 @@ main(
 
      usleep(SLEEP_BETWEEN_CMD);
 
-     // Configure the bridge controller
-     cy3240_reconfigure(&cy3240, false, false);
+     // Configure the bridge controller using the default settings
+     cy3240_reconfigure(
+               handle,
+               CY3240_POWER_5V,
+               CY3240_BUS_I2C,
+               CY3240_100kHz);
 
      usleep(SLEEP_BETWEEN_CMD);
 
@@ -192,7 +199,11 @@ main(
 
           length = sizeof(data);
 
-          cy3240_write(&cy3240, PSOC, data, &length);
+          cy3240_write(
+                    handle,
+                    PSOC,
+                    data,
+                    &length);
 
 
           usleep(BLINK_DELAY);
@@ -207,7 +218,11 @@ main(
 
           length = sizeof(data);
 
-          cy3240_write(&cy3240, PSOC, data, &length);
+          cy3240_write(
+                    handle,
+                    PSOC,
+                    data,
+                    &length);
 
           usleep(BLINK_DELAY);
 
@@ -216,15 +231,17 @@ main(
      /* Turn off debug messages */
      hid_set_debug(HID_DEBUG_NONE);
 
-     cy3240.power = CY3240_POWER_EXTERNAL;
-
      // Reconfigure the bridge controller
-     cy3240_reconfigure(&cy3240, true, false);
+     cy3240_reconfigure(
+               handle,
+               CY3240_POWER_EXTERNAL,
+               CY3240_BUS_I2C,
+               CY3240_100kHz);
 
      usleep(SLEEP_BETWEEN_CMD);
 
      // Close the device
-     cy3240_close(&cy3240);
+     cy3240_close(handle);
 
      return 0;
 }

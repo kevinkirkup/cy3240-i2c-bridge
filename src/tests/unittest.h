@@ -24,6 +24,7 @@ extern "C" {
 #include "config.h"
 #include "cy3240.h"
 #include "cy3240_types.h"
+#include "cy3240_private_types.h"
 #include "cy3240_util.h"
 #include "cy3240_packet.h"
 #include "AceUnitData.h"

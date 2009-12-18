@@ -52,15 +52,44 @@ extern "C" {
 
 //-----------------------------------------------------------------------------
 /**
+ *  Method to restart the CY3240 bridge chip
+ *
+ *  @param handle [in] the handle to the bridge controller
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_restart(
+          int handle
+          );
+
+//-----------------------------------------------------------------------------
+/**
+ *  Method to reinitialize the CY3240 bridge chip
+ *
+ *  @param handle [in] the handle to the bridge controller
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_reinit(
+          int handle
+          );
+
+//-----------------------------------------------------------------------------
+/**
  *  Method to write data to the CY3240
  *
- *  @param[in,out]
+ *  @param handle [in] the handle to the bridge controller
+ *  @param address [in] the I2C Address of the device to read
+ *  @param pData   [in] the data read from the device
+ *  @param pLength [in] the length of the read data
  *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_write(
-          Cy3240_t* const pCy3240,
+          int handle,
           uint8 address,
           const uint8* const pData,
           uint16* const pLength
@@ -70,13 +99,16 @@ cy3240_write(
 /**
  *  Method to read data from the CY3240
  *
- *  @param[in,out]
+ *  @param handle  [in] the handle to the bridge controller
+ *  @param address [in] the I2C Address of the device to read
+ *  @param pData   [in] the data read from the device
+ *  @param pLength [in] the length of the read data
  *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_read(
-          const Cy3240_t* const pCy3240,
+          int handle,
           uint8 address,
           uint8* const pData,
           uint16* const pLength
@@ -86,26 +118,26 @@ cy3240_read(
 /**
  *  Method to open the CY3240
  *
- *  @param iface_num [in] the usb interface number
+ *  @param handle [in] the handle to the bridge controller
  *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_open(
-          Cy3240_t* const pCy3240
+          int handle
           );
 
 //-----------------------------------------------------------------------------
 /**
  *  Method to close the CY3240 usb device
  *
- *  @param[in,out]
+ *  @param handle [in] the handle to the bridge controller
  *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_close(
-          Cy3240_t* const pCy3240
+          int handle
           );
 
 //-----------------------------------------------------------------------------
@@ -123,7 +155,7 @@ cy3240_close(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_util_factory (
-          Cy3240_t* pCy3240,
+          int* pHandle,
           int iface_number,
           int timeout,
           Cy3240_Power_t power,

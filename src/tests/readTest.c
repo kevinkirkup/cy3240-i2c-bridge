@@ -118,6 +118,7 @@ testReadSetup (
           )
 {
      Cy3240_Error_t result = CY3240_ERROR_OK;
+     int handle = (int)&myData;
 
      // Initialize the state
      memset(&myData, 0x00, sizeof(Cy3240_t));
@@ -143,7 +144,7 @@ testReadSetup (
 
      // Initialize the state
      result = cy3240_util_factory(
-               &myData,
+               &handle,
                0,
                1000,
                CY3240_POWER_5V,
@@ -169,6 +170,11 @@ testReadCleanup (
           void
           )
 {
+     int handle = (int)&myData;
+
+     // Close the device handle
+     cy3240_close(handle);
+
      // Initialize the state
      memset(&myData, 0x00, sizeof(Cy3240_t));
 }
@@ -186,10 +192,11 @@ testReadError(
      uint8 data[8] = {0};
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
+     int handle = (int)&myData;
 
      // NULL Data buffer
      result = cy3240_read(
-               &myData,
+               handle,
                MY_ADDRESS,
                NULL,
                &length);
@@ -199,8 +206,8 @@ testReadError(
                result);
 
      // NULL length parameter
-     cy3240_read(
-               &myData,
+     result = cy3240_read(
+               handle,
                MY_ADDRESS,
                data,
                NULL);
@@ -211,8 +218,8 @@ testReadError(
 
      // 0 length
      length = 0;
-     cy3240_read(
-               &myData,
+     result = cy3240_read(
+               handle,
                MY_ADDRESS,
                data,
                &length);
@@ -235,10 +242,11 @@ testReadSmall (
      uint8 data[8] = {0};
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
+     int handle = (int)&myData;
 
      // Write a small packet to the device
      result = cy3240_read(
-               &myData,
+               handle,
                MY_ADDRESS,
                data,
                &length);
@@ -276,10 +284,11 @@ testReadMedium (
      uint8 data[CY3240_MAX_READ_BYTES] = {0};
      uint16 length = CY3240_MAX_READ_BYTES;
      Cy3240_Error_t result = CY3240_ERROR_OK;
+     int handle = (int)&myData;
 
      // Write a small packet to the device
      result = cy3240_read(
-               &myData,
+               handle,
                MY_ADDRESS,
                data,
                &length);
@@ -317,10 +326,11 @@ testReadLarge (
      uint8 data[69] = {0};
      uint16 length = 69;
      Cy3240_Error_t result = CY3240_ERROR_OK;
+     int handle = (int)&myData;
 
      // Write a small packet to the device
      result = cy3240_read(
-               &myData,
+               handle,
                MY_ADDRESS,
                data,
                &length);

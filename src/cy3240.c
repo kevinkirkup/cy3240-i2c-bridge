@@ -35,6 +35,8 @@
 #include <string.h>
 #include "config.h"
 #include "cy3240.h"
+#include "cy3240_types.h"
+#include "cy3240_private_types.h"
 #include "cy3240_debug.h"
 #include "cy3240_packet.h"
 
@@ -53,7 +55,6 @@
 #define HID_FAILURE(s)  ((s != HID_RET_SUCCESS) ? TRUE : FALSE)
 
 //@} End of Defines
-
 
 //////////////////////////////////////////////////////////////////////
 /// @name Data
@@ -242,7 +243,40 @@ pack_reconfigure(
 
 //-----------------------------------------------------------------------------
 /**
- *  Method to pack the reconfigure packet for the bridge controller
+ *  Method to pack the restart the bridge controller
+ *
+ *  @param pLength [out] the length of the restart data
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+static Cy3240_Error_t
+pack_restart(
+          uint16* const pLength
+          )
+{
+     if (pLength != NULL) {
+
+          // Initialize the byte index
+          uint8 byteIndex = 0;
+
+          SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_RESTART;
+          SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
+
+          // Set the control address
+          SEND_PACKET[byteIndex++] = CONTROL_I2C_ADDRESS;
+
+          // Set the length
+          *pLength = byteIndex + 1;
+
+          return CY3240_ERROR_OK;
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
+}   /* -----  end of static function pack_restart  ----- */
+
+//-----------------------------------------------------------------------------
+/**
+ *  Method to pack the re-initialize the bridge controller
  *
  *  @param pLength [out] the length of the reinit data
  *  @returns Cy3240_Error_t
@@ -271,7 +305,7 @@ pack_reinit(
      }
 
      return CY3240_ERROR_INVALID_PARAMETERS;
-}   /* -----  end of static function pack_reconfigure  ----- */
+}   /* -----  end of static function pack_reinit  ----- */
 
 
 //-----------------------------------------------------------------------------
@@ -286,7 +320,7 @@ pack_reinit(
  *  @returns Cy3240_Error_t
  */
 //-----------------------------------------------------------------------------
-Cy3240_Error_t
+static Cy3240_Error_t
 pack_write_input(
           uint8 address,
           const uint8* const pSendData,
@@ -458,12 +492,12 @@ unpack_read_output (
 
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
-cy3240_reconfigure(
-          const Cy3240_t* const pCy3240,
-          bool restart,
-          bool reinit
+cy3240_restart(
+          int handle
           )
 {
+     // The handle is the pointer to the state structure
+     const Cy3240_t* pCy3240 = (const Cy3240_t*)handle;
 
      // Check the parameters
      if (pCy3240 != NULL) {
@@ -473,23 +507,132 @@ cy3240_reconfigure(
           uint16 writeLength = 0;
           uint16 readLength = 0;
 
-          // TODO:
-          // Need to be able to retransmit data if Nack is received
+          // TODO: Check the state machine
           if CY3240_SUCCESS(result) {
 
-               // Setup the reinit command
-               if (reinit) {
+               result = pack_restart(
+                         &writeLength);
 
-                    result = pack_reinit(
-                              &writeLength);
+               if CY3240_FAILURE(result)
+                    printf("\nFailed to pack restart data in write input packet: %i", result);
+          }
 
-               // Setup the reconfigure command
-               } else {
+          if (CY3240_SUCCESS(result)) {
 
-                    result = pack_reconfigure(
-                              pCy3240,
-                              &writeLength);
-               }
+               readLength = writeLength + CY3240_STATUS_CODE_SIZE;
+
+               // Write the data to the buffer
+               // Note! The received data is ignored
+               result = transcieve(
+                         pCy3240,
+                         SEND_PACKET,
+                         &writeLength,
+                         RECV_PACKET,
+                         &readLength);
+
+               if CY3240_FAILURE(result)
+                    printf("\nFailed to transmit restart packet");
+          }
+
+          if (CY3240_SUCCESS(result)) {
+
+               // Decode the response
+               result = unpack_write_output(
+                         &writeLength,
+                         &readLength,
+                         NULL);
+
+               if CY3240_FAILURE(result)
+                    printf("\nSlave failed to Ack restart");
+          }
+
+          return result;
+
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
+}
+
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_reinit(
+          int handle
+          )
+{
+     // The handle is the pointer to the state structure
+     const Cy3240_t* pCy3240 = (const Cy3240_t*)handle;
+
+     // Check the parameters
+     if (pCy3240 != NULL) {
+
+          Cy3240_Error_t result = CY3240_ERROR_OK;
+
+          uint16 writeLength = 0;
+          uint16 readLength = 0;
+
+          if CY3240_SUCCESS(result) {
+
+               result = pack_reinit(
+                         &writeLength);
+
+               if CY3240_FAILURE(result)
+                    printf("\nFailed to pack reinit data in write input packet: %i", result);
+          }
+
+          if (CY3240_SUCCESS(result)) {
+
+               readLength = writeLength + CY3240_STATUS_CODE_SIZE;
+
+               // Write the data to the buffer
+               // Note! The received data is ignored
+               result = transcieve(
+                         pCy3240,
+                         SEND_PACKET,
+                         &writeLength,
+                         RECV_PACKET,
+                         &readLength);
+
+               if CY3240_FAILURE(result)
+                    printf("\nFailed to transmit reinit packet");
+          }
+
+          return result;
+
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
+}
+
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_reconfigure(
+          int handle,
+          Cy3240_Power_t power,
+          Cy3240_Bus_t bus,
+          Cy3240_I2C_ClockSpeed_t clock
+          )
+{
+     // The handle is the pointer to the state structure
+     Cy3240_t* const pCy3240 = (Cy3240_t* const)handle;
+
+     // Check the parameters
+     if (pCy3240 != NULL) {
+
+          Cy3240_Error_t result = CY3240_ERROR_OK;
+
+          uint16 writeLength = 0;
+          uint16 readLength = 0;
+
+          // Set the new configuration
+          pCy3240->power = power;
+          pCy3240->bus = bus;
+          pCy3240->clock = clock;
+
+          if CY3240_SUCCESS(result) {
+
+               result = pack_reconfigure(
+                         pCy3240,
+                         &writeLength);
 
                if CY3240_FAILURE(result)
                     printf("\nFailed to pack send data in write input packet: %i", result);
@@ -523,12 +666,15 @@ cy3240_reconfigure(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_write(
-          Cy3240_t* const pCy3240,
+          int handle,
           uint8 address,
           const uint8* const pData,
           uint16* const pLength
           )
 {
+
+     // The handle is the pointer to the state structure
+     Cy3240_t* pCy3240 = (Cy3240_t*)handle;
 
      if ((pData != NULL) &&
          (pLength != NULL) &&
@@ -614,12 +760,15 @@ cy3240_write(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_read(
-          const Cy3240_t* const pCy3240,
+          int handle,
           uint8 address,
           uint8* const pData,
           uint16* const pLength
           )
 {
+
+     // The handle is the pointer to the state structure
+     const Cy3240_t* pCy3240 = (const Cy3240_t*)handle;
 
      if ((pCy3240 != NULL) &&
          (pData != NULL) &&
@@ -692,9 +841,12 @@ cy3240_read(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_open(
-          Cy3240_t* const pCy3240
+          int handle
           )
 {
+
+     // The handle is the pointer to the state structure
+     Cy3240_t* pCy3240 = (Cy3240_t*)handle;
 
      if (pCy3240 != NULL) {
 
@@ -765,9 +917,12 @@ cy3240_open(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_close(
-          Cy3240_t* const pCy3240
+          int handle
           )
 {
+     // The handle is the pointer to the state structure
+     Cy3240_t* pCy3240 = (Cy3240_t*)handle;
+
      if (pCy3240 != NULL) {
 
           hid_return error = HID_RET_SUCCESS;
@@ -787,6 +942,9 @@ cy3240_close(
             return CY3240_ERROR_HID;
           }
 
+          // deallocate the handle
+          free(pCy3240);
+
           return CY3240_ERROR_OK;
      }
 
@@ -796,7 +954,7 @@ cy3240_close(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_util_factory (
-          Cy3240_t* pCy3240,
+          int* pHandle,
           int iface_number,
           int timeout,
           Cy3240_Power_t power,
@@ -804,6 +962,12 @@ cy3240_util_factory (
           Cy3240_I2C_ClockSpeed_t clock
           )
 {
+     // The handle is the pointer to the state structure
+     Cy3240_t* pCy3240;
+
+     // Allocate the handle
+     pCy3240 = (Cy3240_t*)malloc(sizeof(Cy3240_t));
+
      // Check the parameters
      if (pCy3240 != NULL) {
 
@@ -818,6 +982,9 @@ cy3240_util_factory (
           pCy3240->init = hid_init;
           pCy3240->write = hid_interrupt_write;
           pCy3240->read = hid_interrupt_read;
+
+          // Initialize the handle
+          *pHandle = pCy3240;
 
           return CY3240_ERROR_OK;
      }
