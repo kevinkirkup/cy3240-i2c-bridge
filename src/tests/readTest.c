@@ -1,24 +1,22 @@
 /**
- * @file writeTest.c
+ * @file readTest
  *
- * @brief Write test for the CY3240 code
+ * @brief CY3240 Read tests
  *
- * Write test for the CY3240 code
+ * CY3240 Read tests
  *
- * @ingroup Write
+ * @ingroup Read
  *
- * @owner  Kevin Kirkup (kevin.kirkup@gmail.com)
- * @author Kevin Kirkup (kevin.kirkup@gmail.com)
+ * @owner  Kevin S Kirkup (kevin.kirkup@gmail.com)
+ * @author Kevin S Kirkup (kevin.kirkup@gmail.com)
  */
-
 //////////////////////////////////////////////////////////////////////
 /// @name Includes
 //@{
 
 #include "string.h"
 #include "unittest.h"
-#include "writeTest.h"
-
+#include "readTest.h"
 //@} End of Includes
 
 //////////////////////////////////////////////////////////////////////
@@ -26,15 +24,14 @@
 //@{
 
 // The location where data should be written in the send buffer
+uint8* pRead;
 uint8* pWrite;
 
 //@} End of Data
 
-
 //////////////////////////////////////////////////////////////////////
 /// @name Methods
 //@{
-
 
 //-----------------------------------------------------------------------------
 /**
@@ -45,7 +42,7 @@ uint8* pWrite;
  */
 //-----------------------------------------------------------------------------
 hid_return
-testWriteInit(
+testReadInit(
           void
           )
 {
@@ -63,7 +60,7 @@ testWriteInit(
  */
 //-----------------------------------------------------------------------------
 hid_return
-testWriteWrite(
+testReadWrite(
           HIDInterface* const hidif,
           unsigned int const ep,
           const char* bytes,
@@ -76,7 +73,7 @@ testWriteWrite(
      // Write the data to the send buffer
      memcpy(pWrite, bytes, size);
 
-     // Move the write pointer
+     // Increment the write pointer
      pWrite += size;
 
      return HID_RET_SUCCESS;
@@ -91,7 +88,7 @@ testWriteWrite(
  */
 //-----------------------------------------------------------------------------
 hid_return
-testWriteRead(
+testReadRead(
           HIDInterface* const hidif,
           unsigned int const ep,
           char* const bytes,
@@ -102,10 +99,10 @@ testWriteRead(
      DBG(printf("HID Read\n");)
 
      // Copy the acknowledgments in the return buffer
-     memcpy(bytes, RECEIVE_BUFFER, size);
+     memcpy(bytes, pRead, size);
 
-     // Set the status byte to something unique
-     bytes[0] = 0x07;
+     // Move the read buffer pointer
+     pRead += size;
 
      return HID_RET_SUCCESS;
 }
@@ -116,11 +113,10 @@ testWriteRead(
  */
 //-----------------------------------------------------------------------------
 A_Before void
-testWriteSetup(
+testReadSetup (
           void
           )
 {
-
      Cy3240_Error_t result = CY3240_ERROR_OK;
 
      // Initialize the state
@@ -129,11 +125,21 @@ testWriteSetup(
      // Initialize the send buffer
      memset(SEND_BUFFER, 0x00, sizeof(SEND_BUFFER));
 
-     // Initialize the write location
+     // Initialize the read/write buffer pointers
+     pRead = RECEIVE_BUFFER;
      pWrite = SEND_BUFFER;
 
-     // Fill the receive buffer with ack bytes
-     memset(RECEIVE_BUFFER, TX_ACK, sizeof(RECEIVE_BUFFER));
+     // Fill the receive buffer with the data for the first packet
+     memset(RECEIVE_BUFFER, 0xAC, CY3240_MAX_SIZE_PACKET);
+
+     // Set the status byte to something unique
+     RECEIVE_BUFFER[0] = 0x07;
+
+     // Fill the receive buffer with the data for the second packet
+     memset(RECEIVE_BUFFER + CY3240_MAX_SIZE_PACKET, 0xFA, CY3240_MAX_SIZE_PACKET);
+
+     // Set the status byte to something unique
+     RECEIVE_BUFFER[CY3240_MAX_SIZE_PACKET] = 0x07;
 
      // Initialize the state
      result = cy3240_util_factory(
@@ -148,12 +154,10 @@ testWriteSetup(
                CY3240_SUCCESS(result));
 
      // Modify the read and write interfaces to point to our functions
-     myData.init = testWriteInit;
-     myData.write = testWriteWrite;
-     myData.read = testWriteRead;
-
+     myData.init = testReadInit;
+     myData.write = testReadWrite;
+     myData.read = testReadRead;
 }
-
 
 //-----------------------------------------------------------------------------
 /**
@@ -161,7 +165,7 @@ testWriteSetup(
  */
 //-----------------------------------------------------------------------------
 A_After void
-testWriteCleanup(
+testReadCleanup (
           void
           )
 {
@@ -175,7 +179,7 @@ testWriteCleanup(
  */
 //-----------------------------------------------------------------------------
 A_Test void
-testWriteError(
+testReadError(
           void
           )
 {
@@ -184,30 +188,30 @@ testWriteError(
      Cy3240_Error_t result = CY3240_ERROR_OK;
 
      // NULL Data buffer
-     result = cy3240_write(
+     result = cy3240_read(
                &myData,
                MY_ADDRESS,
                NULL,
                &length);
 
-     assertEquals("Pass write with NULL data buffer should indicate invalid parameter",
+     assertEquals("Pass read with NULL data buffer should indicate invalid parameter",
                CY3240_ERROR_INVALID_PARAMETERS,
                result);
 
      // NULL length parameter
-     cy3240_write(
+     cy3240_read(
                &myData,
                MY_ADDRESS,
                data,
                NULL);
 
-     assertEquals("Passing write with NULL length should indicate invalid parameter",
+     assertEquals("Passing read with NULL length should indicate invalid parameter",
                CY3240_ERROR_INVALID_PARAMETERS,
                result);
 
      // 0 length
      length = 0;
-     cy3240_write(
+     cy3240_read(
                &myData,
                MY_ADDRESS,
                data,
@@ -220,11 +224,11 @@ testWriteError(
 
 //-----------------------------------------------------------------------------
 /**
- *  Test Case for writing a small amount of data i.e. < packet size
+ *  Test Case for reading a small amount of data i.e. < packet size
  */
 //-----------------------------------------------------------------------------
 A_Test void
-testWriteSmall (
+testReadSmall (
           void
           )
 {
@@ -232,21 +236,18 @@ testWriteSmall (
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
 
-     // Fill the data buffer with a test pattern
-     memset(data, 0xAC, sizeof(data));
-
      // Write a small packet to the device
-     result = cy3240_write(
+     result = cy3240_read(
                &myData,
                MY_ADDRESS,
                data,
                &length);
 
-     assertTrue("The write should complete successfully",
+     assertTrue("The read should complete successfully",
                CY3240_SUCCESS(result));
 
-     assertEquals("The control byte should show start, stop, write and I2C: 0x0A",
-               0x0A,
+     assertEquals("The control byte should show start, stop, read and I2C: 0x0B",
+               0x0B,
                SEND_BUFFER[INPUT_PACKET_INDEX_CMD]);
 
      assertEquals("The length byte should show length 8 and no more packets: 0x08",
@@ -257,41 +258,78 @@ testWriteSmall (
                MY_ADDRESS,
                SEND_BUFFER[INPUT_PACKET_INDEX_ADDRESS]);
 
-     assertEquals("The data portion of the send buffer should equal the data buffer",
+     assertEquals("The read data should match the read buffer: 0x0AC",
                0,
-               memcmp(data, &SEND_BUFFER[WRITE_INPUT_PACKET_INDEX_DATA], length));
-
+               memcmp(data, &RECEIVE_BUFFER[OUTPUT_PACKET_INDEX_DATA], length));
 }
 
 //-----------------------------------------------------------------------------
 /**
- *  Test Case for writing a medium amount of data i.e. = packet size
+ *  Test Case for reading a medium amount of data i.e. = packet size
  */
 //-----------------------------------------------------------------------------
 A_Test void
-testWriteMedium (
+testReadMedium (
           void
           )
 {
-     uint8 data[61] = {0};
-     uint16 length = 61;
+     uint8 data[CY3240_MAX_READ_BYTES] = {0};
+     uint16 length = CY3240_MAX_READ_BYTES;
      Cy3240_Error_t result = CY3240_ERROR_OK;
 
-     // Fill the data buffer with a test pattern
-     memset(data, 0xAC, sizeof(data));
-
      // Write a small packet to the device
-     result = cy3240_write(
+     result = cy3240_read(
                &myData,
                MY_ADDRESS,
                data,
                &length);
 
-     assertTrue("The write should complete successfully",
+     assertTrue("The read should complete successfully",
                CY3240_SUCCESS(result));
 
-     assertEquals("The control byte should show start, stop, write and I2C: 0x0A",
-               0x0A,
+     assertEquals("The control byte should show start, stop, read and I2C: 0x0B",
+               0x0B,
+               SEND_BUFFER[INPUT_PACKET_INDEX_CMD]);
+
+     assertEquals("The length byte should show length 61 and no more packets: 0x3F",
+               0x3D,
+               SEND_BUFFER[INPUT_PACKET_INDEX_LENGTH]);
+
+     assertEquals("The address portion of the send buffer should equal MY_ADDRESS",
+               MY_ADDRESS,
+               SEND_BUFFER[INPUT_PACKET_INDEX_ADDRESS]);
+
+     assertEquals("The read data should match the read buffer: 0x0AC",
+               0,
+               memcmp(data, &RECEIVE_BUFFER[OUTPUT_PACKET_INDEX_DATA], length));
+}
+
+//-----------------------------------------------------------------------------
+/**
+ *  Test Case for reading a large amount of data i.e. > packet size
+ */
+//-----------------------------------------------------------------------------
+A_Test void
+testReadLarge (
+          void
+          )
+{
+     uint8 data[69] = {0};
+     uint16 length = 69;
+     Cy3240_Error_t result = CY3240_ERROR_OK;
+
+     // Write a small packet to the device
+     result = cy3240_read(
+               &myData,
+               MY_ADDRESS,
+               data,
+               &length);
+
+     assertTrue("The read should complete successfully",
+               CY3240_SUCCESS(result));
+
+     assertEquals("The control byte should show start, stop, read and I2C: 0x0B",
+               0x0B,
                SEND_BUFFER[INPUT_PACKET_INDEX_CMD]);
 
      assertEquals("The length byte should show length 61 and no more packets: 0x3D",
@@ -302,80 +340,26 @@ testWriteMedium (
                MY_ADDRESS,
                SEND_BUFFER[INPUT_PACKET_INDEX_ADDRESS]);
 
-     assertEquals("The data portion of the send buffer should equal the data buffer",
-               0,
-               memcmp(data, &SEND_BUFFER[WRITE_INPUT_PACKET_INDEX_DATA], length));
-}
-
-//-----------------------------------------------------------------------------
-/**
- *  Test Case for writing a large amount of data i.e. > packet size
- */
-//-----------------------------------------------------------------------------
-A_Test void
-testWriteLarge (
-          void
-          )
-{
-     uint8 data[69] = {0};
-     uint16 length = 69;
-     Cy3240_Error_t result = CY3240_ERROR_OK;
-
-     // Fill the data buffer with a test pattern
-     memset(data, 0xAC, sizeof(data));
-
-     // Write a small packet to the device
-     result = cy3240_write(
-               &myData,
-               MY_ADDRESS,
-               data,
-               &length);
-
-     assertTrue("The write should complete successfully",
-               CY3240_SUCCESS(result));
-
-     assertEquals("The control byte should show start, write and I2C: 0x02",
-               0x02,
-               SEND_BUFFER[INPUT_PACKET_INDEX_CMD]);
-
-     assertEquals("The length byte should show length 61 and more packets: 0xBD",
-               0xBD,
-               SEND_BUFFER[INPUT_PACKET_INDEX_LENGTH]);
-
-     assertEquals("The address portion of the send buffer should equal MY_ADDRESS",
-               MY_ADDRESS,
-               SEND_BUFFER[INPUT_PACKET_INDEX_ADDRESS]);
-
-     assertEquals("The data portion of the send buffer should equal the data buffer",
-               0,
-               memcmp(data, &SEND_BUFFER[WRITE_INPUT_PACKET_INDEX_DATA], CY3240_MAX_WRITE_BYTES));
-
-     // Shift the offset of the buffer for the second packet
-     assertEquals("The control byte should show start, stop, write and I2C: 0x0A",
-               0x0A,
+     assertEquals("The control byte should show start, stop, read and I2C: 0x0B",
+               0x0B,
                SEND_BUFFER[CY3240_MAX_SIZE_PACKET + INPUT_PACKET_INDEX_CMD]);
 
      assertEquals("The length byte should show length 8 and no more packets: 0x08",
                0x08,
                SEND_BUFFER[CY3240_MAX_SIZE_PACKET + INPUT_PACKET_INDEX_LENGTH]);
 
-     assertEquals("The data portion of the send buffer should equal the data buffer",
+     assertEquals("The address portion of the send buffer should equal MY_ADDRESS",
+               MY_ADDRESS,
+               SEND_BUFFER[CY3240_MAX_SIZE_PACKET + INPUT_PACKET_INDEX_ADDRESS]);
+
+     // Shift the offset of the buffer for the second packet
+     assertEquals("The first packet of data should match 0xAC",
                0,
-               memcmp(data, &SEND_BUFFER[CY3240_MAX_SIZE_PACKET + WRITE_INPUT_PACKET_INDEX_DATA], 8));
+               memcmp(data, &RECEIVE_BUFFER[1], CY3240_MAX_READ_BYTES));
 
-}
-
-//-----------------------------------------------------------------------------
-/**
- *  Test Case to test Nack during transmit
- */
-//-----------------------------------------------------------------------------
-A_Test void
-testWriteNack (
-          void
-          )
-{
+     assertEquals("The remaining packet data should match 0xFA",
+               0,
+               memcmp(&data[CY3240_MAX_READ_BYTES], &RECEIVE_BUFFER[CY3240_MAX_SIZE_PACKET + 1], 8));
 }
 
 //@} End of Methods
-

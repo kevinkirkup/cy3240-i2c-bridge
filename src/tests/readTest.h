@@ -1,54 +1,50 @@
-/** AceUnit test header file for fixture writeTest.
+/** AceUnit test header file for fixture readTest.
  *
  * You may wonder why this is a header file and yet generates program elements.
  * This allows you to declare test methods as static.
  *
  * @warning This is a generated file. Do not edit. Your changes will be lost.
- * @file writeTest.h
+ * @file readTest.h
  */
 
-#ifndef _WRITETEST_H
+#ifndef _READTEST_H
 /** Include shield to protect this header file from being included more than once. */
-#define _WRITETEST_H
+#define _READTEST_H
 
 /** The id of this fixture. */
-#define A_FIXTURE_ID 7
+#define A_FIXTURE_ID 2
 
 #include "AceUnit.h"
 
 /* The prototypes are here to be able to include this header file at the beginning of the test file instead of at the end. */
-A_Test void testWriteError(void);
-A_Test void testWriteSmall(void);
-A_Test void testWriteMedium(void);
-A_Test void testWriteLarge(void);
-A_Test void testWriteNack(void);
-A_Before void testWriteSetup(void);
-A_After void testWriteCleanup(void);
+A_Test void testReadError(void);
+A_Test void testReadSmall(void);
+A_Test void testReadMedium(void);
+A_Test void testReadLarge(void);
+A_Before void testReadSetup(void);
+A_After void testReadCleanup(void);
 
 /** The test case ids of this fixture. */
 static const TestCaseId_t testIds[] = {
-    8, /* testWriteError */
-    9, /* testWriteSmall */
-    10, /* testWriteMedium */
-    11, /* testWriteLarge */
-    12, /* testWriteNack */
+    3, /* testReadError */
+    4, /* testReadSmall */
+    5, /* testReadMedium */
+    6, /* testReadLarge */
 };
 
 #ifndef ACEUNIT_EMBEDDED
 /** The test names of this fixture. */
 static const char *const testNames[] = {
-    "testWriteError",
-    "testWriteSmall",
-    "testWriteMedium",
-    "testWriteLarge",
-    "testWriteNack",
+    "testReadError",
+    "testReadSmall",
+    "testReadMedium",
+    "testReadLarge",
 };
 #endif
 
 #ifdef ACEUNIT_LOOP
 /** The loops of this fixture. */
 static const aceunit_loop_t loops[] = {
-    1,
     1,
     1,
     1,
@@ -63,29 +59,27 @@ static const AceGroupId_t groups[] = {
     0,
     0,
     0,
-    0,
 };
 #endif
 
 /** The test cases of this fixture. */
 static const testMethod_t testCases[] = {
-    testWriteError,
-    testWriteSmall,
-    testWriteMedium,
-    testWriteLarge,
-    testWriteNack,
+    testReadError,
+    testReadSmall,
+    testReadMedium,
+    testReadLarge,
     NULL
 };
 
 /** The before methods of this fixture. */
 static const testMethod_t before[] = {
-    testWriteSetup,
+    testReadSetup,
     NULL
 };
 
 /** The after methods of this fixture. */
 static const testMethod_t after[] = {
-    testWriteCleanup,
+    testReadCleanup,
     NULL
 };
 
@@ -103,10 +97,10 @@ static const testMethod_t afterClass[] = {
 #if defined __cplusplus
 extern
 #endif
-const TestFixture_t writeTestFixture = {
-    7,
+const TestFixture_t readTestFixture = {
+    2,
 #ifndef ACEUNIT_EMBEDDED
-    "writeTest",
+    "readTest",
 #endif
 #ifdef ACEUNIT_SUITES
     NULL,
@@ -128,4 +122,4 @@ const TestFixture_t writeTestFixture = {
     afterClass
 };
 
-#endif /* _WRITETEST_H */
+#endif /* _READTEST_H */

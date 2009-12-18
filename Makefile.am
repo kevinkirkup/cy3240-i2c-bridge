@@ -28,8 +28,10 @@ runTests_SOURCES = \
 	src/tests/Suite1.c \
 	src/tests/writeTest.c \
 	src/tests/writeTest.h \
-	src/i2c_demo.h \
-	src/i2c_demo.h \
+	src/tests/readTest.c \
+	src/tests/readTest.h \
+	src/tests/unittest.h \
+	src/tests/unittest.c \
 	aceunit/src/native/AceUnit.c \
 	aceunit/src/native/AceUnit.h \
 	aceunit/src/native/AceUnitAssert.h \

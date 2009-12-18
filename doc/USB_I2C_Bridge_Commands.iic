@@ -1,0 +1,47 @@
+; Name                                               | CMD  | RSP
+; ----------------------------------------------------------------
+; FW_TOUCH_INPUT_CMD_NONE                            | 0x00 | 0x80
+; FW_TOUCH_INPUT_CMD_RESET                           | 0x01 | 0x81
+; FW_TOUCH_INPUT_CMD_GET_USERMODE                    | 0x02 | 0x82
+; FW_TOUCH_INPUT_CMD_SET_USERMODE                    | 0x03 | 0x83
+; FW_TOUCH_INPUT_CMD_GET_POWERSTATE                  | 0x04 | 0x84
+; FW_TOUCH_INPUT_CMD_SET_POWERSTATE                  | 0x05 | 0x85
+; FW_TOUCH_INPUT_CMD_GET_SENSITIVITY                 | 0x06 | 0x86
+; FW_TOUCH_INPUT_CMD_SET_SENSITIVITY                 | 0x07 | 0x87
+; FW_TOUCH_INPUT_CMD_GET_NUM_LD                      | 0x08 | 0x88
+; FW_TOUCH_INPUT_CMD_GET_DEVICE_INFO                 | 0x09 | 0x89
+; FW_TOUCH_INPUT_CMD_GET_CAPABILITIES                | 0x0A | 0x8A
+; FW_TOUCH_INPUT_CMD_GET_STATUS_BTN                  | 0x0B | 0x8B
+; FW_TOUCH_INPUT_CMD_GET_STATUS_BTN_ALL              | 0x0C | 0x8C
+; FW_TOUCH_INPUT_CMD_GET_STATUS_1D                   | 0x0D | 0x8D
+; FW_TOUCH_INPUT_CMD_GET_STATUS_2D                   | 0x0E | 0x8E
+; ----------------------------------------------------------------
+; FW_TOUCH_INPUT_CMD_GET_GPIO_VAL                    | 0x30 | 0xB0
+; FW_TOUCH_INPUT_CMD_SET_GPIO_VAL                    | 0x31 | 0xB1
+; FW_TOUCH_INPUT_CMD_GET_GPIO_DIR                    | 0x32 | 0xB2
+; FW_TOUCH_INPUT_CMD_SET_GPIO_DIR                    | 0x33 | 0xB3
+; ----------------------------------------------------------------
+; FW_TOUCH_INPUT_CMD_GET_NUM_SENSORS                 | 0x50 | 0xD0
+; FW_TOUCH_INPUT_CMD_GET_RAW_DATA                    | 0x51 | 0xD1
+; FW_TOUCH_INPUT_CMD_GET_FINGER_THRESHOLD            | 0x52 | 0xD2
+; FW_TOUCH_INPUT_CMD_SET_FINGER_THRESHOLD            | 0x53 | 0xD3
+; FW_TOUCH_INPUT_CMD_GET_NOISE_THRESHOLD             | 0x54 | 0xD4
+; FW_TOUCH_INPUT_CMD_SET_NOISE_THRESHOLD             | 0x55 | 0xD5
+; FW_TOUCH_INPUT_CMD_GET_BASELINE_UPDATE_THRESHOLD   | 0x56 | 0xD6
+; FW_TOUCH_INPUT_CMD_SET_BASELINE_UPDATE_THRESHOLD   | 0x57 | 0xD7
+; FW_TOUCH_INPUT_CMD_GET_SENSOR_AUTORESET            | 0x58 | 0xD8
+; FW_TOUCH_INPUT_CMD_SET_SENSOR_AUTORESET            | 0x59 | 0xD9
+; FW_TOUCH_INPUT_CMD_GET_HYSTERESIS                  | 0x5A | 0xDA
+; FW_TOUCH_INPUT_CMD_SET_HYSTERESIS                  | 0x5B | 0xDB
+; FW_TOUCH_INPUT_CMD_GET_DEBOUNCE                    | 0x5C | 0xDC
+; FW_TOUCH_INPUT_CMD_SET_DEBOUNCE                    | 0x5D | 0xDD
+; FW_TOUCH_INPUT_CMD_GET_NEGATIVE_NOISE_THRESHOLD    | 0x5E | 0xDE
+; FW_TOUCH_INPUT_CMD_SET_NEGATIVE_NOISE_THRESHOLD    | 0x5F | 0xDF
+; FW_TOUCH_INPUT_CMD_GET_LOW_BASELINE_RESET          | 0x60 | 0xE0
+; FW_TOUCH_INPUT_CMD_SET_LOW_BASELINE_RESET          | 0x61 | 0xE1
+; FW_TOUCH_INPUT_CMD_GET_SCANNING_SPEED              | 0x62 | 0xE2
+; FW_TOUCH_INPUT_CMD_SET_SCANNING_SPEED              | 0x63 | 0xE3
+; FW_TOUCH_INPUT_CMD_GET_RESOLUTION                  | 0x64 | 0xE4
+; FW_TOUCH_INPUT_CMD_SET_RESOLUTION                  | 0x65 | 0xE5
+; FW_TOUCH_INPUT_CMD_GET_PRESCALER_PERIOD            | 0x66 | 0xE6
+; FW_TOUCH_INPUT_CMD_SET_PRESCALER_PERIOD            | 0x67 | 0xE7

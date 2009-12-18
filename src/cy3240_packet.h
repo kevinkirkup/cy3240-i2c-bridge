@@ -54,7 +54,8 @@ extern "C" {
 
 #define CY3240_STATUS_CODE_SIZE      (1)        ///< The length of the status code
 #define CY3240_MAX_SIZE_PACKET       (64)
-#define CY3240_MAX_SIZE_DATA         (61)
+#define CY3240_MAX_WRITE_BYTES       (61)
+#define CY3240_MAX_READ_BYTES        (61)
 
 /**
  * Write packet parameters

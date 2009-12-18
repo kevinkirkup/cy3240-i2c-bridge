@@ -395,9 +395,7 @@ unpack_write_output(
 static Cy3240_Error_t
 pack_read_input (
           uint8 address,
-          uint16* const pReadLength,
-          bool first,
-          bool more
+          uint16* const pReadLength
           )
 {
 
@@ -407,22 +405,13 @@ pack_read_input (
 
           uint8 byteIndex = 0;
 
-          SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_READ | CONTROL_BYTE_START;
+          SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_READ | CONTROL_BYTE_START | CONTROL_BYTE_STOP;
           SEND_PACKET[byteIndex++] = (uint8)*pReadLength;
 
-          // If there is more data, set the more bit
-          if (more)
-               SEND_PACKET[INPUT_PACKET_INDEX_LENGTH] |= LENGTH_BYTE_MORE_PACKETS;
-
-          else
-               SEND_PACKET[INPUT_PACKET_INDEX_CMD] |= CONTROL_BYTE_STOP;
-
-          // If this is the first packet, we need to send the address
-          if (first)
-               SEND_PACKET[byteIndex++] = address;
+          // We need to send the address
+          SEND_PACKET[byteIndex++] = address;
 
           return CY3240_ERROR_OK;
-
      }
 
      return CY3240_ERROR_INVALID_PARAMETERS;
@@ -561,13 +550,13 @@ cy3240_write(
                bool more;
 
                // Check if there will be more segments
-               if (bytesLeft > CY3240_MAX_SIZE_DATA)
+               if (bytesLeft > CY3240_MAX_WRITE_BYTES)
                     more = true;
                else
                     more = false;
 
                // Set the write and read length to tranfer one packet at a time
-               writeLength = MIN(bytesLeft, CY3240_MAX_SIZE_DATA);
+               writeLength = MIN(bytesLeft, CY3240_MAX_WRITE_BYTES);
                readLength = writeLength + CY3240_STATUS_CODE_SIZE;
 
                // TODO:
@@ -639,35 +628,23 @@ cy3240_read(
 
           Cy3240_Error_t result = CY3240_ERROR_OK;
 
-          // TODO: Move the ReadStart point after each write
           uint16 readLength;
           uint8* pReadStart = pData;
           const uint16 writeLength = READ_INPUT_PACKET_SIZE;
           uint16 bytesLeft = *pLength;
-          bool first = true;
 
+          // Loop while there is still data to read
           while (CY3240_SUCCESS(result) && (bytesLeft > 0)) {
 
-               // Are there going to be more segments
-               bool more;
-
-               // Check if there will be more segments
-               if (bytesLeft > CY3240_MAX_SIZE_DATA)
-                    more = true;
-               else
-                    more = false;
-
                // Calculate the number of packets to read
-               readLength = MIN(bytesLeft, CY3240_MAX_SIZE_DATA);
+               readLength = MIN(bytesLeft, CY3240_MAX_READ_BYTES);
 
                // Create the read input packet
                if (CY3240_SUCCESS(result)) {
 
                     result = pack_read_input(
                               address,
-                              &readLength,
-                              first,
-                              more);
+                              &readLength);
 
                     if CY3240_FAILURE(result)
                          printf("\nFailed to pack read input packet: %i", result);
@@ -704,9 +681,6 @@ cy3240_read(
                          bytesLeft -= readLength;
                     }
                }
-
-               // No longer the first packet
-               first = false;
           }
 
           return result;
