@@ -170,7 +170,7 @@ transcieve(
           CY3240_DEBUG_PRINT_TX_PACKET(pSendData, *pSendLength);
 
           // Write the data to the USB HID device
-          error = pCy3240->write(
+          error = pCy3240->w.write(
                     pCy3240->pHid,
                     OUTPUT_ENDPOINT,
                     pSendData,
@@ -183,7 +183,7 @@ transcieve(
           }
 
           // Read the response data from the USB HID device
-          error = pCy3240->read(
+          error = pCy3240->w.read(
                     pCy3240->pHid,
                     INPUT_ENDPOINT,
                     pReceiveData,
@@ -863,21 +863,21 @@ cy3240_open(
 #endif
 
           // Initialize the device
-          error = pCy3240->init();
+          error = pCy3240->w.init();
           if (HID_FAILURE(error)) {
                fprintf(stderr, "hid_init failed with return code %d\n", error);
                return CY3240_ERROR_HID;
           }
 
           // Create the interface to the device
-          pCy3240->pHid = hid_new_HIDInterface();
-          if (pCy3240->pHid == 0) {
+          pCy3240->pHid = pCy3240->w.new_if();
+          if (pCy3240->pHid == NULL) {
                fprintf(stderr, "hid_new_HIDInterface() failed, out of memory?\n");
                return CY3240_ERROR_HID;
           }
 
           // For open the usb device
-          error = hid_force_open(
+          error = pCy3240->w.force_open(
                     pCy3240->pHid,
                     pCy3240->iface_number,
                     &matcher,
@@ -928,15 +928,15 @@ cy3240_close(
           hid_return error = HID_RET_SUCCESS;
 
           /* End Cypress Customizations */
-          error = hid_close(pCy3240->pHid);
+          error = pCy3240->w.close(pCy3240->pHid);
           if (error != HID_RET_SUCCESS) {
             fprintf(stderr, "hid_close failed with return code %d\n", error);
             return CY3240_ERROR_HID;
           }
 
-          hid_delete_HIDInterface(&pCy3240->pHid);
+          pCy3240->w.delete_if(&pCy3240->pHid);
 
-          error = hid_cleanup();
+          error = pCy3240->w.cleanup();
           if (error != HID_RET_SUCCESS) {
             fprintf(stderr, "hid_cleanup failed with return code %d\n", error);
             return CY3240_ERROR_HID;
@@ -979,9 +979,14 @@ cy3240_util_factory (
           pCy3240->power = power;
           pCy3240->bus = bus;
           pCy3240->clock = clock;
-          pCy3240->init = hid_init;
-          pCy3240->write = hid_interrupt_write;
-          pCy3240->read = hid_interrupt_read;
+          pCy3240->w.init = hid_init;
+          pCy3240->w.close = hid_close;
+          pCy3240->w.write = hid_interrupt_write;
+          pCy3240->w.read = hid_interrupt_read;
+          pCy3240->w.cleanup = hid_cleanup;
+          pCy3240->w.delete_if = hid_delete_HIDInterface;
+          pCy3240->w.force_open = hid_force_open;
+          pCy3240->w.new_if = hid_new_HIDInterface;
 
           // Initialize the handle
           *pHandle = pCy3240;

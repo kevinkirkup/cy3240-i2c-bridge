@@ -27,10 +27,182 @@
 /**
  * The component that will be used for the unit tests.
  */
-Cy3240_t myData;
+Cy3240_t* pMyData;
 
 // The sending buffer
 uint8 SEND_BUFFER[SEND_BUFFER_SIZE] = {0};
 uint8 RECEIVE_BUFFER[SEND_BUFFER_SIZE] = {0};
 
 //@} End of Data
+
+
+//////////////////////////////////////////////////////////////////////
+/// @name Methods
+//@{
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID init
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testGenericInit(
+          void
+          )
+{
+     DBG(printf("HID Init\n");)
+
+     return HID_RET_SUCCESS;
+}   /* -----  end of static function init_test  ----- */
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID init
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testGenericClose(
+          HIDInterface *const hidif
+          )
+{
+     DBG(printf("HID Close\n");)
+
+     return HID_RET_SUCCESS;
+}   /* -----  end of static function init_test  ----- */
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID write
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testGenericWrite(
+          HIDInterface* const hidif,
+          unsigned int const ep,
+          const char* bytes,
+          unsigned int const size,
+          unsigned int const timeout
+          )
+{
+     DBG(printf("HID Write\n");)
+
+     // Write the data to the send buffer
+     memcpy(SEND_BUFFER, bytes, size);
+
+     return HID_RET_SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID read
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testGenericRead(
+          HIDInterface* const hidif,
+          unsigned int const ep,
+          char* const bytes,
+          unsigned int const size,
+          unsigned int const timeout
+          )
+{
+     DBG(printf("HID Read\n");)
+
+     // Copy the acknowledgments in the return buffer
+     memcpy(bytes, RECEIVE_BUFFER, size);
+
+     // Set the status byte to something unique
+     bytes[0] = 0x07;
+
+     return HID_RET_SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID clean
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testGenericCleanup(
+          void
+          )
+{
+     DBG(printf("HID Cleanup\n");)
+
+     return HID_RET_SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID delete interface
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+void
+testGenericDeleteIf(
+          HIDInterface **const hidif
+          )
+{
+     DBG(printf("HID DeleteIf\n");)
+
+     return;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID Force Open
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testGenericForceOpen(
+          HIDInterface *const hidif,
+          int const interface,
+          HIDInterfaceMatcher const *const matcher,
+          unsigned short retries
+          )
+{
+     DBG(printf("HID Force Open\n");)
+
+     return HID_RET_SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the new HID Interface
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+HIDInterface *
+testGenericNewHidInterface(
+          void
+          )
+{
+     DBG(printf("HID new Interface\n");)
+
+     // Give a constant for the interface type to avoid memory leak
+     return (HIDInterface*)0x01;
+}
+
+//@} End of Methods

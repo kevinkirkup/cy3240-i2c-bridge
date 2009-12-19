@@ -122,10 +122,7 @@ testWriteSetup(
 {
 
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)&myData;
-
-     // Initialize the state
-     memset(&myData, 0x00, sizeof(Cy3240_t));
+     int handle = 0;
 
      // Initialize the send buffer
      memset(SEND_BUFFER, 0x00, sizeof(SEND_BUFFER));
@@ -148,11 +145,20 @@ testWriteSetup(
      assertTrue("The usb device should be successfully created",
                CY3240_SUCCESS(result));
 
-     // Modify the read and write interfaces to point to our functions
-     myData.init = testWriteInit;
-     myData.write = testWriteWrite;
-     myData.read = testWriteRead;
+     pMyData = (Cy3240_t*)handle;
 
+     // Modify the read and write interfaces to point to our functions
+     pMyData->w.init = testGenericInit;
+     pMyData->w.close = testGenericClose;
+     pMyData->w.write = testWriteWrite;
+     pMyData->w.read = testWriteRead;
+     pMyData->w.cleanup = testGenericCleanup;
+     pMyData->w.delete_if = testGenericDeleteIf;
+     pMyData->w.force_open = testGenericForceOpen;
+     pMyData->w.new_if = testGenericNewHidInterface;
+
+     // Open the device
+     result = cy3240_open(handle);
 }
 
 
@@ -166,13 +172,10 @@ testWriteCleanup(
           void
           )
 {
-     int handle = (int)&myData;
+     int handle = (int)pMyData;
 
      // Close the device handle
      cy3240_close(handle);
-
-     // Initialize the state
-     memset(&myData, 0x00, sizeof(Cy3240_t));
 }
 
 //-----------------------------------------------------------------------------
@@ -188,7 +191,7 @@ testWriteError(
      uint8 data[8] = {0};
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)&myData;
+     int handle = (int)pMyData;
 
      // NULL Data buffer
      result = cy3240_write(
@@ -238,7 +241,7 @@ testWriteSmall (
      uint8 data[8] = {0};
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)&myData;
+     int handle = (int)pMyData;
 
      // Fill the data buffer with a test pattern
      memset(data, 0xAC, sizeof(data));
@@ -284,7 +287,7 @@ testWriteMedium (
      uint8 data[61] = {0};
      uint16 length = 61;
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)&myData;
+     int handle = (int)pMyData;
 
      // Fill the data buffer with a test pattern
      memset(data, 0xAC, sizeof(data));
@@ -329,7 +332,7 @@ testWriteLarge (
      uint8 data[69] = {0};
      uint16 length = 69;
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)&myData;
+     int handle = (int)pMyData;
 
      // Fill the data buffer with a test pattern
      memset(data, 0xAC, sizeof(data));
