@@ -11,6 +11,7 @@ libcy3240_la_SOURCES = \
 	src/cy3240_debug.c \
 	src/cy3240_debug.h \
 	src/cy3240_packet.h \
+	src/cy3240_private_types.h \
 	src/cy3240_types.h
 
 libcy3240_la_LIBADD= -lusb -lhid
@@ -25,6 +26,7 @@ cy3240_i2c_LDADD= -lusb -lhid -lcy3240
 AM_CPPFLAGS=-I aceunit/src/native -I src -DACEUNIT_SUITES
 
 runTests_SOURCES = \
+	src/cy3240_private_types.h \
 	src/tests/Suite1.c \
 	src/tests/writeTest.c \
 	src/tests/writeTest.h \
