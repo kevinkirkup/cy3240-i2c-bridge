@@ -12,7 +12,7 @@
 #define _WRITETEST_H
 
 /** The id of this fixture. */
-#define A_FIXTURE_ID 7
+#define A_FIXTURE_ID 21
 
 #include "AceUnit.h"
 
@@ -27,11 +27,11 @@ A_After void testWriteCleanup(void);
 
 /** The test case ids of this fixture. */
 static const TestCaseId_t testIds[] = {
-    8, /* testWriteError */
-    9, /* testWriteSmall */
-    10, /* testWriteMedium */
-    11, /* testWriteLarge */
-    12, /* testWriteNack */
+    22, /* testWriteError */
+    23, /* testWriteSmall */
+    24, /* testWriteMedium */
+    25, /* testWriteLarge */
+    26, /* testWriteNack */
 };
 
 #ifndef ACEUNIT_EMBEDDED
@@ -104,7 +104,7 @@ static const testMethod_t afterClass[] = {
 extern
 #endif
 const TestFixture_t writeTestFixture = {
-    7,
+    21,
 #ifndef ACEUNIT_EMBEDDED
     "writeTest",
 #endif

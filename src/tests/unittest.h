@@ -39,14 +39,6 @@ extern "C" {
 #define SEND_BUFFER_SIZE       (128)
 #define RECEIVE_BUFFER_SIZE    (128)
 
-#if DEBUG
-#define DBG(x) x
-
-#else
-#define DBG(x)
-
-#endif // DEBUG
-
 //@} End of Defines
 
 //////////////////////////////////////////////////////////////////////
@@ -181,6 +173,59 @@ testGenericForceOpen(
 HIDInterface *
 testGenericNewHidInterface(
           void
+          );
+
+//@} End of Methods
+
+//////////////////////////////////////////////////////////////////////
+/// @name Methods
+//@{
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID init
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testInit(
+          void
+          );
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID read
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testRead(
+          HIDInterface* const hidif,
+          unsigned int const ep,
+          char* const bytes,
+          unsigned int const size,
+          unsigned int const timeout
+          );
+
+//-----------------------------------------------------------------------------
+/**
+ *  Substitute method for the HID write
+ *
+ *  @see hid.h
+ *  @returns hid_return
+ */
+//-----------------------------------------------------------------------------
+hid_return
+testWrite(
+          HIDInterface* const hidif,
+          unsigned int const ep,
+          const char* bytes,
+          unsigned int const size,
+          unsigned int const timeout
           );
 
 //@} End of Methods

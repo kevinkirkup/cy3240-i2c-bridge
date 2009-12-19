@@ -35,25 +35,6 @@ uint8* pWrite;
 /// @name Methods
 //@{
 
-
-//-----------------------------------------------------------------------------
-/**
- *  Substitute method for the HID init
- *
- *  @see hid.h
- *  @returns hid_return
- */
-//-----------------------------------------------------------------------------
-hid_return
-testWriteInit(
-          void
-          )
-{
-     DBG(printf("HID Init\n");)
-
-     return HID_RET_SUCCESS;
-}   /* -----  end of static function init_test  ----- */
-
 //-----------------------------------------------------------------------------
 /**
  *  Substitute method for the HID write
@@ -62,8 +43,8 @@ testWriteInit(
  *  @returns hid_return
  */
 //-----------------------------------------------------------------------------
-hid_return
-testWriteWrite(
+static hid_return
+myWrite(
           HIDInterface* const hidif,
           unsigned int const ep,
           const char* bytes,
@@ -90,8 +71,8 @@ testWriteWrite(
  *  @returns hid_return
  */
 //-----------------------------------------------------------------------------
-hid_return
-testWriteRead(
+static hid_return
+myRead(
           HIDInterface* const hidif,
           unsigned int const ep,
           char* const bytes,
@@ -150,8 +131,8 @@ testWriteSetup(
      // Modify the read and write interfaces to point to our functions
      pMyData->w.init = testGenericInit;
      pMyData->w.close = testGenericClose;
-     pMyData->w.write = testWriteWrite;
-     pMyData->w.read = testWriteRead;
+     pMyData->w.write = myWrite;
+     pMyData->w.read = myRead;
      pMyData->w.cleanup = testGenericCleanup;
      pMyData->w.delete_if = testGenericDeleteIf;
      pMyData->w.force_open = testGenericForceOpen;
@@ -191,7 +172,21 @@ testWriteError(
      uint8 data[8] = {0};
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)pMyData;
+     int handle = 0;
+
+     // NULL Handle
+     result = cy3240_write(
+               handle,
+               MY_ADDRESS,
+               data,
+               &length);
+
+     assertEquals("Pass write with NULL handle should indicate invalid parameter",
+               CY3240_ERROR_INVALID_PARAMETERS,
+               result);
+
+     // Initialize the handle
+     handle = (int)pMyData;
 
      // NULL Data buffer
      result = cy3240_write(

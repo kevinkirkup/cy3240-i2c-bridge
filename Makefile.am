@@ -32,6 +32,8 @@ runTests_SOURCES = \
 	src/tests/writeTest.h \
 	src/tests/readTest.c \
 	src/tests/readTest.h \
+	src/tests/reconfigTest.c \
+	src/tests/reconfigTest.h \
 	src/tests/unittest.h \
 	src/tests/unittest.c \
 	aceunit/src/native/AceUnit.c \

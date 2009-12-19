@@ -204,7 +204,7 @@ transcieve(
 
 //-----------------------------------------------------------------------------
 /**
- *  Method to pack the reconfigure packet for the bridge controller
+ *  Method to pack the packet to change the power mode for the bridge controller
  *
  *  @param pCy3240 [in] the CY3240 state
  *  @param pLength [out] the length of the reconfigure data
@@ -212,25 +212,25 @@ transcieve(
  */
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
-pack_reconfigure(
-          const Cy3240_t* const pCy3240,
+pack_reconfigure_power(
+          Cy3240_Power_t power,
           uint16* const pLength
           )
 {
      // Check the parameters
-     if (pCy3240 != NULL) {
+     if (pLength != NULL) {
 
           // Initialize the byte index
           uint8 byteIndex = 0;
 
-          SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | pCy3240->clock;
+          SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START;
           SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET | 0x01;
 
           // Set the I2C address of the CY3240 control register
           SEND_PACKET[byteIndex++] = CONTROL_I2C_ADDRESS;
 
           // Set the power mode to use
-          SEND_PACKET[byteIndex] |= pCy3240->power;
+          SEND_PACKET[byteIndex] = power;
 
           // Set the length
           *pLength = byteIndex + 1;
@@ -239,7 +239,44 @@ pack_reconfigure(
      }
 
      return CY3240_ERROR_INVALID_PARAMETERS;
-}   /* -----  end of static function pack_reconfigure  ----- */
+}   /* -----  end of static function pack_reconfigure_power  ----- */
+
+//-----------------------------------------------------------------------------
+/**
+ *  Method to pack the reconfigure the clock speed for the bridge controller
+ *
+ *  @param pCy3240 [in] the CY3240 state
+ *  @param pLength [out] the length of the reconfigure data
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+static Cy3240_Error_t
+pack_reconfigure_clock(
+          Cy3240_I2C_ClockSpeed_t clock,
+          uint16* const pLength
+          )
+{
+     // Check the parameters
+     if (pLength != NULL) {
+
+          // Initialize the byte index
+          uint8 byteIndex = 0;
+
+          SEND_PACKET[byteIndex++] = CONTROL_BYTE_RECONFIG | clock;
+          SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
+
+          // Set the I2C address of the CY3240 control register
+          SEND_PACKET[byteIndex++] = CONTROL_I2C_ADDRESS;
+
+          // Set the length
+          *pLength = byteIndex + 1;
+
+          return CY3240_ERROR_OK;
+     }
+
+     return CY3240_ERROR_INVALID_PARAMETERS;
+}   /* -----  end of static function pack_reconfigure_clock ----- */
+
 
 //-----------------------------------------------------------------------------
 /**
@@ -483,6 +520,106 @@ unpack_read_output (
 
 }   /* -----  end of static function unpack_read_output  ----- */
 
+//-----------------------------------------------------------------------------
+/**
+ * Method to reconfigure the power mode for the CY3240 bridge chip
+ *
+ * @param pCy3240 [in] the bridge state inforamtion
+ * @param power   [in] the power mode to set
+ * @return Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+static Cy3240_Error_t
+reconfigure_power(
+          Cy3240_t* const pCy3240,
+          Cy3240_Power_t power
+          )
+{
+     Cy3240_Error_t result = CY3240_ERROR_OK;
+     uint16 writeLength = 0;
+     uint16 readLength = 0;
+
+     result = pack_reconfigure_power(
+               power,
+               &writeLength);
+
+     if CY3240_FAILURE(result)
+          printf("\nFailed to pack send data in write input packet: %i", result);
+
+     if (CY3240_SUCCESS(result)) {
+
+          readLength = writeLength + CY3240_STATUS_CODE_SIZE;
+
+          // Write the data to the buffer
+          // Note! The received data is ignored
+          result = transcieve(
+                    pCy3240,
+                    SEND_PACKET,
+                    &writeLength,
+                    RECV_PACKET,
+                    &readLength);
+
+          if CY3240_FAILURE(result)
+               printf("\nFailed to transmit write packet");
+     }
+
+     // Set the power mode
+     if CY3240_SUCCESS(result)
+          pCy3240->power = power;
+
+     return result;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ * Method to set the clock rate for the CY3240 bridge chip
+ *
+ * @param pCy3240 [in] the bridge state inforamtion
+ * @param clock   [in] the clock rate to set
+ * @return Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+static Cy3240_Error_t
+reconfigure_clock(
+          Cy3240_t* const pCy3240,
+          Cy3240_I2C_ClockSpeed_t clock
+          )
+{
+     Cy3240_Error_t result = CY3240_ERROR_OK;
+     uint16 writeLength = 0;
+     uint16 readLength = 0;
+
+     result = pack_reconfigure_clock(
+               clock,
+               &writeLength);
+
+     if CY3240_FAILURE(result)
+          printf("\nFailed to pack send data in write input packet: %i", result);
+
+     if (CY3240_SUCCESS(result)) {
+
+          readLength = writeLength + CY3240_STATUS_CODE_SIZE;
+
+          // Write the data to the buffer
+          // Note! The received data is ignored
+          result = transcieve(
+                    pCy3240,
+                    SEND_PACKET,
+                    &writeLength,
+                    RECV_PACKET,
+                    &readLength);
+
+          if CY3240_FAILURE(result)
+               printf("\nFailed to transmit packet");
+     }
+
+     // Set the clock rate
+     if CY3240_SUCCESS(result)
+          pCy3240->clock = clock;
+
+     return result;
+}
+
 //@} End of Private Methods
 
 
@@ -620,40 +757,31 @@ cy3240_reconfigure(
 
           Cy3240_Error_t result = CY3240_ERROR_OK;
 
-          uint16 writeLength = 0;
-          uint16 readLength = 0;
-
-          // Set the new configuration
-          pCy3240->power = power;
-          pCy3240->bus = bus;
-          pCy3240->clock = clock;
-
+          // Change the power mode
           if CY3240_SUCCESS(result) {
 
-               result = pack_reconfigure(
+               result = reconfigure_power(
                          pCy3240,
-                         &writeLength);
+                         power);
 
                if CY3240_FAILURE(result)
-                    printf("\nFailed to pack send data in write input packet: %i", result);
+                    printf("\nFailed to set the requested power mode: %02x", power);
           }
 
-          if (CY3240_SUCCESS(result)) {
+          // Set the clock mode
+          if CY3240_SUCCESS(result) {
 
-               readLength = writeLength + CY3240_STATUS_CODE_SIZE;
-
-               // Write the data to the buffer
-               // Note! The received data is ignored
-               result = transcieve(
+               result = reconfigure_clock(
                          pCy3240,
-                         SEND_PACKET,
-                         &writeLength,
-                         RECV_PACKET,
-                         &readLength);
+                         clock);
 
                if CY3240_FAILURE(result)
-                    printf("\nFailed to transmit write packet");
+                    printf("\nFailed to set the requested clock mode: %02x", clock);
+
           }
+
+          // TODO: Changing bus not supported
+          pCy3240->bus = bus;
 
           return result;
 
@@ -676,7 +804,8 @@ cy3240_write(
      // The handle is the pointer to the state structure
      Cy3240_t* pCy3240 = (Cy3240_t*)handle;
 
-     if ((pData != NULL) &&
+     if ((pCy3240 != NULL) &&
+         (pData != NULL) &&
          (pLength != NULL) &&
          (*pLength != 0)) {
 

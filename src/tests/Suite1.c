@@ -9,10 +9,12 @@
 #ifdef ACEUNIT_SUITES
 
 extern TestSuite_t readTestFixture;
+extern TestSuite_t reconfigTestFixture;
 extern TestSuite_t writeTestFixture;
 
 const TestSuite_t *suitesOf1[] = {
     &readTestFixture,
+    &reconfigTestFixture,
     &writeTestFixture,
     NULL
 };

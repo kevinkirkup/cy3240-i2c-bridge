@@ -15,6 +15,7 @@
 /// @name Includes
 //@{
 
+#include <string.h>
 #include "unittest.h"
 #include "cy3240_private_types.h"
 
@@ -31,7 +32,7 @@ Cy3240_t* pMyData;
 
 // The sending buffer
 uint8 SEND_BUFFER[SEND_BUFFER_SIZE] = {0};
-uint8 RECEIVE_BUFFER[SEND_BUFFER_SIZE] = {0};
+uint8 RECEIVE_BUFFER[RECEIVE_BUFFER_SIZE] = {0};
 
 //@} End of Data
 
@@ -60,7 +61,7 @@ testGenericInit(
 
 //-----------------------------------------------------------------------------
 /**
- *  Substitute method for the HID init
+ *  Substitute method for the HID close
  *
  *  @see hid.h
  *  @returns hid_return

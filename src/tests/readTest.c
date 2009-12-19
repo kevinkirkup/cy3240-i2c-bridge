@@ -14,7 +14,7 @@
 /// @name Includes
 //@{
 
-#include "string.h"
+#include <string.h>
 #include "unittest.h"
 #include "readTest.h"
 //@} End of Includes
@@ -35,32 +35,14 @@ uint8* pWrite;
 
 //-----------------------------------------------------------------------------
 /**
- *  Substitute method for the HID init
- *
- *  @see hid.h
- *  @returns hid_return
- */
-//-----------------------------------------------------------------------------
-hid_return
-testReadInit(
-          void
-          )
-{
-     DBG(printf("HID Init\n");)
-
-     return HID_RET_SUCCESS;
-}   /* -----  end of static function init_test  ----- */
-
-//-----------------------------------------------------------------------------
-/**
  *  Substitute method for the HID write
  *
  *  @see hid.h
  *  @returns hid_return
  */
 //-----------------------------------------------------------------------------
-hid_return
-testReadWrite(
+static hid_return
+myWrite(
           HIDInterface* const hidif,
           unsigned int const ep,
           const char* bytes,
@@ -87,8 +69,8 @@ testReadWrite(
  *  @returns hid_return
  */
 //-----------------------------------------------------------------------------
-hid_return
-testReadRead(
+static hid_return
+myRead(
           HIDInterface* const hidif,
           unsigned int const ep,
           char* const bytes,
@@ -156,8 +138,8 @@ testReadSetup (
      // Modify the read and write interfaces to point to our functions
      pMyData->w.init = testGenericInit;
      pMyData->w.close = testGenericClose;
-     pMyData->w.write = testReadWrite;
-     pMyData->w.read = testReadRead;
+     pMyData->w.write = myWrite;
+     pMyData->w.read = myRead;
      pMyData->w.cleanup = testGenericCleanup;
      pMyData->w.delete_if = testGenericDeleteIf;
      pMyData->w.force_open = testGenericForceOpen;
@@ -196,7 +178,21 @@ testReadError(
      uint8 data[8] = {0};
      uint16 length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     int handle = (int)pMyData;
+     int handle = 0;
+
+     // NULL handle
+     result = cy3240_read(
+               handle,
+               MY_ADDRESS,
+               data,
+               &length);
+
+     assertEquals("Pass read with NULL handle should indicate invalid parameter",
+               CY3240_ERROR_INVALID_PARAMETERS,
+               result);
+
+     // Initialize the handle
+     handle = (int)pMyData;
 
      // NULL Data buffer
      result = cy3240_read(

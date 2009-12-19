@@ -35,7 +35,13 @@ extern "C" {
 #define CY3240_PID (0xF232)
 
 /* Debug configuration */
-#define DBG(X)  X
+#if DEBUG
+#define DBG(x) x
+
+#else
+#define DBG(x)
+
+#endif // DEBUG
 
 #define TRUE   (1)
 #define FALSE  (0)
@@ -61,6 +67,25 @@ extern "C" {
 Cy3240_Error_t
 cy3240_restart(
           int handle
+          );
+
+//-----------------------------------------------------------------------------
+/**
+ *  Method to reconfigure the settings for the CY3240 bridge chip
+ *
+ *  @param handle [in] the handle to the bridge controller
+ *  @param power  [in] the power mode
+ *  @param bus    [in] the bus mode
+ *  @param clock  [in] the clock speed
+ *  @returns Cy3240_Error_t
+ */
+//-----------------------------------------------------------------------------
+Cy3240_Error_t
+cy3240_reconfigure(
+          int handle,
+          Cy3240_Power_t power,
+          Cy3240_Bus_t bus,
+          Cy3240_I2C_ClockSpeed_t clock
           );
 
 //-----------------------------------------------------------------------------
