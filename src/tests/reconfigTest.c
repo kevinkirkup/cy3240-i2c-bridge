@@ -202,7 +202,7 @@ testReconfigSetup(
                1000,
                CY3240_POWER_5V,
                CY3240_BUS_I2C,
-               CY3240_100kHz);
+               CY3240_CLOCK__100kHz);
 
      assertTrue("The usb device should be successfully created",
                CY3240_SUCCESS(result));
@@ -260,7 +260,7 @@ testReconfigError(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 
      assertEquals("Pass reconfigure with NULL handle should indicate invalid parameter",
@@ -282,7 +282,7 @@ testReconfigPowerExternal(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 
      assertEquals("The operation should result in an OK",
@@ -292,7 +292,7 @@ testReconfigPowerExternal(
      assertTrue("Power External",
                testPowerPacket(
                SEND_BUFFER,
-               CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | CY3240_100kHz | CY3240_BUS_I2C,
+               CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | CY3240_CLOCK__100kHz | CY3240_BUS_I2C,
                0x01,
                CONTROL_I2C_ADDRESS,
                CY3240_POWER_EXTERNAL
@@ -313,7 +313,7 @@ testReconfigPower5V(
                handle,
                CY3240_POWER_5V,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 
      assertEquals("The operation should result in an OK",
@@ -323,7 +323,7 @@ testReconfigPower5V(
      assertTrue("Power 5V",
                testPowerPacket(
                SEND_BUFFER,
-               CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | CY3240_100kHz | CY3240_BUS_I2C,
+               CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | CY3240_CLOCK__100kHz | CY3240_BUS_I2C,
                0x01,
                CONTROL_I2C_ADDRESS,
                CY3240_POWER_5V
@@ -344,7 +344,7 @@ testReconfigPower3_3V(
                handle,
                CY3240_POWER_3_3V,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 
      assertEquals("The operation should result in an OK",
@@ -354,7 +354,7 @@ testReconfigPower3_3V(
      assertTrue("Power 3.3V",
                testPowerPacket(
                SEND_BUFFER,
-               CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | CY3240_100kHz | CY3240_BUS_I2C,
+               CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START | CY3240_CLOCK__100kHz | CY3240_BUS_I2C,
                0x01,
                CONTROL_I2C_ADDRESS,
                CY3240_POWER_3_3V
@@ -375,7 +375,7 @@ testReconfigClock100kHz(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 
      assertEquals("The operation should result in an OK",
@@ -385,7 +385,7 @@ testReconfigClock100kHz(
      assertTrue("Clock 100KHz",
                testClockPacket(
                SEND_BUFFER + CY3240_MAX_SIZE_PACKET,
-               CONTROL_BYTE_RECONFIG | CY3240_100kHz | CY3240_BUS_I2C,
+               CONTROL_BYTE_RECONFIG | CY3240_CLOCK__100kHz | CY3240_BUS_I2C,
                0x00,
                CONTROL_I2C_ADDRESS
                ));
@@ -405,7 +405,7 @@ testReconfigClock400kHz(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_400kHz
+               CY3240_CLOCK__400kHz
                );
 
      assertEquals("The operation should result in an OK",
@@ -415,7 +415,7 @@ testReconfigClock400kHz(
      assertTrue("Clock 400KHz",
                testClockPacket(
                SEND_BUFFER + CY3240_MAX_SIZE_PACKET,
-               CONTROL_BYTE_RECONFIG | CY3240_400kHz | CY3240_BUS_I2C,
+               CONTROL_BYTE_RECONFIG | CY3240_CLOCK__400kHz | CY3240_BUS_I2C,
                0x00,
                CONTROL_I2C_ADDRESS
                ));
@@ -435,7 +435,7 @@ testReconfigClock50kHz(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_50kHz
+               CY3240_CLOCK__50kHz
                );
 
      assertEquals("The operation should result in an OK",
@@ -445,7 +445,7 @@ testReconfigClock50kHz(
      assertTrue("Clock 50KHz",
                testClockPacket(
                SEND_BUFFER + CY3240_MAX_SIZE_PACKET,
-               CONTROL_BYTE_RECONFIG | CY3240_50kHz | CY3240_BUS_I2C,
+               CONTROL_BYTE_RECONFIG | CY3240_CLOCK__50kHz | CY3240_BUS_I2C,
                0x00,
                CONTROL_I2C_ADDRESS
                ));
@@ -465,13 +465,13 @@ testReconfigClockReserved(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_Reserved
+               CY3240_CLOCK__Reserved
                );
 
      assertTrue("Clock Reserved",
                testClockPacket(
                SEND_BUFFER + CY3240_MAX_SIZE_PACKET,
-               CONTROL_BYTE_RECONFIG | CY3240_Reserved | CY3240_BUS_I2C,
+               CONTROL_BYTE_RECONFIG | CY3240_CLOCK__Reserved | CY3240_BUS_I2C,
                0x00,
                CONTROL_I2C_ADDRESS
                ));
@@ -492,7 +492,7 @@ testReconfigBusI2C(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 }
 
@@ -511,7 +511,7 @@ testReconfigBusSPI(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_SPI,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 }
 
@@ -530,7 +530,7 @@ testReconfigBusUART(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_UART,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 }
 
@@ -549,7 +549,7 @@ testReconfigBusLIN(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_LIN,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 }
 

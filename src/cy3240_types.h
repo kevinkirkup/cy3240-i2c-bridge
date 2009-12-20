@@ -41,10 +41,10 @@ typedef enum {
  * CY3240 I2C Clock Speeds
  */
 typedef enum {
-     CY3240_100kHz   = 0x00,                    ///< 100 kHz Clock
-     CY3240_400kHz   = 0x04,                    ///< 400 kHz Clock
-     CY3240_50kHz    = 0x08,                    ///< 50 kHz Clock
-     CY3240_Reserved = 0x0C                     ///< Reserved
+     CY3240_CLOCK__100kHz   = 0x00,                    ///< 100 kHz Clock
+     CY3240_CLOCK__400kHz   = 0x04,                    ///< 400 kHz Clock
+     CY3240_CLOCK__50kHz    = 0x08,                    ///< 50 kHz Clock
+     CY3240_CLOCK__Reserved = 0x0C                     ///< Reserved
 } Cy3240_I2C_ClockSpeed_t;
 
 /**

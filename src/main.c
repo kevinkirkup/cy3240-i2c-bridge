@@ -161,7 +161,7 @@ main(
                1000,
                CY3240_POWER_5V,
                CY3240_BUS_I2C,
-               CY3240_100kHz
+               CY3240_CLOCK__100kHz
                );
 
      // Open the device
@@ -186,7 +186,7 @@ main(
                handle,
                CY3240_POWER_5V,
                CY3240_BUS_I2C,
-               CY3240_100kHz);
+               CY3240_CLOCK__100kHz);
 
      usleep(SLEEP_BETWEEN_CMD);
 
@@ -236,7 +236,7 @@ main(
                handle,
                CY3240_POWER_EXTERNAL,
                CY3240_BUS_I2C,
-               CY3240_100kHz);
+               CY3240_CLOCK__100kHz);
 
      usleep(SLEEP_BETWEEN_CMD);
 
