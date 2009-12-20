@@ -31,8 +31,8 @@
 Cy3240_t* pMyData;
 
 // The sending buffer
-uint8 SEND_BUFFER[SEND_BUFFER_SIZE] = {0};
-uint8 RECEIVE_BUFFER[RECEIVE_BUFFER_SIZE] = {0};
+uint8_t SEND_BUFFER[SEND_BUFFER_SIZE] = {0};
+uint8_t RECEIVE_BUFFER[RECEIVE_BUFFER_SIZE] = {0};
 
 //@} End of Data
 

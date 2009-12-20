@@ -48,5 +48,4 @@ runTests_SOURCES = \
 	aceunit/src/native/ExceptionHandling.c \
 	aceunit/src/native/ExceptionHandling.h
 
-# These are only used for reference
 runTests_LDADD= -lusb -lhid -lcy3240

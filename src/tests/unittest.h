@@ -51,8 +51,8 @@ extern "C" {
 extern Cy3240_t* pMyData;
 
 // The sending buffer
-extern uint8 SEND_BUFFER[SEND_BUFFER_SIZE];
-extern uint8 RECEIVE_BUFFER[SEND_BUFFER_SIZE];
+extern uint8_t SEND_BUFFER[SEND_BUFFER_SIZE];
+extern uint8_t RECEIVE_BUFFER[SEND_BUFFER_SIZE];
 
 //@} End of Data
 

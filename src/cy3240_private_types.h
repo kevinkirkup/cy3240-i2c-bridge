@@ -123,8 +123,8 @@ typedef struct {
  * CY3240 device state structure
  */
 typedef struct {
-     uint16 vendor_id;                          ///< Vendor ID
-     uint16 product_id;                         ///< Product ID
+     uint16_t vendor_id;                          ///< Vendor ID
+     uint16_t product_id;                         ///< Product ID
      int iface_number;                          ///< The interface number
      int timeout;                               ///< USB Transfer timeout
      Cy3240_I2C_ClockSpeed_t clock;             ///< The clock speed

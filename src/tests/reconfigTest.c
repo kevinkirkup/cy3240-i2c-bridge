@@ -26,7 +26,7 @@
 //@{
 
 // The location where data should be written in the send buffer
-uint8* pWrite;
+uint8_t* pWrite;
 
 //@} End of Data
 
@@ -74,10 +74,10 @@ myWrite(
 //-----------------------------------------------------------------------------
 static bool
 testClockPacket(
-          const uint8* const pData,
-          uint8 control,
-          uint8 length,
-          uint8 address
+          const uint8_t* const pData,
+          uint8_t control,
+          uint8_t length,
+          uint8_t address
           )
 {
      // Check the control byte
@@ -122,11 +122,11 @@ testClockPacket(
 //-----------------------------------------------------------------------------
 static bool
 testPowerPacket(
-          const uint8* const pData,
-          uint8 control,
-          uint8 length,
-          uint8 address,
-          uint8 power
+          const uint8_t* const pData,
+          uint8_t control,
+          uint8_t length,
+          uint8_t address,
+          uint8_t power
           )
 {
      // Check the control byte

@@ -20,9 +20,6 @@ extern "C" {
 /// @name Types
 //@{
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-
 /**
  * Common Error Codes
  */

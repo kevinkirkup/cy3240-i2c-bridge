@@ -22,6 +22,7 @@ extern "C" {
 /// @name Includes
 //@{
 
+#include <stdint.h>
 #include "cy3240_types.h"
 
 //@} End of Includes
@@ -115,9 +116,9 @@ cy3240_reinit(
 Cy3240_Error_t
 cy3240_write(
           int handle,
-          uint8 address,
-          const uint8* const pData,
-          uint16* const pLength
+          uint8_t address,
+          const uint8_t* const pData,
+          uint16_t* const pLength
           );
 
 //-----------------------------------------------------------------------------
@@ -134,9 +135,9 @@ cy3240_write(
 Cy3240_Error_t
 cy3240_read(
           int handle,
-          uint8 address,
-          uint8* const pData,
-          uint16* const pLength
+          uint8_t address,
+          uint8_t* const pData,
+          uint16_t* const pLength
           );
 
 //-----------------------------------------------------------------------------

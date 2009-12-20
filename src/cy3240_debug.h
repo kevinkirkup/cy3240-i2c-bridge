@@ -16,6 +16,13 @@
 extern "C" {
 #endif
 
+//////////////////////////////////////////////////////////////////////
+/// @name Includes
+//@{
+
+#include <stdint.h>
+
+//@} End of Includes
 
 //////////////////////////////////////////////////////////////////////
 /// @name Defines
@@ -51,8 +58,8 @@ extern "C" {
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_debug_print_packet(
-    const uint8* const buffer,
-    uint16 length
+    const uint8_t* const buffer,
+    uint16_t length
     );
 
 //-----------------------------------------------------------------------------
@@ -65,8 +72,8 @@ cy3240_debug_print_packet(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_debug_print_send_packet(
-          const uint8* const buffer,
-          uint16 length
+          const uint8_t* const buffer,
+          uint16_t length
           );
 
 //-----------------------------------------------------------------------------
@@ -81,8 +88,8 @@ cy3240_debug_print_send_packet(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_debug_print_receive_control_packet(
-          const uint8* const packet,
-          uint16 length
+          const uint8_t* const packet,
+          uint16_t length
           );
 
 //@} End of Methods

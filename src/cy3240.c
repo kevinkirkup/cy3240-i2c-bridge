@@ -33,6 +33,7 @@
 
 #include <hid.h>
 #include <string.h>
+#include <stdint.h>
 #include "config.h"
 #include "cy3240.h"
 #include "cy3240_types.h"
@@ -151,10 +152,10 @@ disable_hid_debug(
 static Cy3240_Error_t
 transcieve(
           const Cy3240_t* const pCy3240,
-          const uint8* const pSendData,
-          const uint16* const pSendLength,
-          uint8* const pReceiveData,
-          uint16* const pReceiveLength
+          const uint8_t* const pSendData,
+          const uint16_t* const pSendLength,
+          uint8_t* const pReceiveData,
+          uint16_t* const pReceiveLength
           )
 {
      if ((pCy3240 != NULL) &&
@@ -214,14 +215,14 @@ transcieve(
 static Cy3240_Error_t
 pack_reconfigure_power(
           Cy3240_Power_t power,
-          uint16* const pLength
+          uint16_t* const pLength
           )
 {
      // Check the parameters
      if (pLength != NULL) {
 
           // Initialize the byte index
-          uint8 byteIndex = 0;
+          uint8_t byteIndex = 0;
 
           SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START;
           SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET | 0x01;
@@ -253,14 +254,14 @@ pack_reconfigure_power(
 static Cy3240_Error_t
 pack_reconfigure_clock(
           Cy3240_I2C_ClockSpeed_t clock,
-          uint16* const pLength
+          uint16_t* const pLength
           )
 {
      // Check the parameters
      if (pLength != NULL) {
 
           // Initialize the byte index
-          uint8 byteIndex = 0;
+          uint8_t byteIndex = 0;
 
           SEND_PACKET[byteIndex++] = CONTROL_BYTE_RECONFIG | clock;
           SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
@@ -288,13 +289,13 @@ pack_reconfigure_clock(
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
 pack_restart(
-          uint16* const pLength
+          uint16_t* const pLength
           )
 {
      if (pLength != NULL) {
 
           // Initialize the byte index
-          uint8 byteIndex = 0;
+          uint8_t byteIndex = 0;
 
           SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_RESTART;
           SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
@@ -321,13 +322,13 @@ pack_restart(
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
 pack_reinit(
-          uint16* const pLength
+          uint16_t* const pLength
           )
 {
      if (pLength != NULL) {
 
           // Initialize the byte index
-          uint8 byteIndex = 0;
+          uint8_t byteIndex = 0;
 
           SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_REINIT;
           SEND_PACKET[byteIndex++] = LENGTH_BYTE_LAST_PACKET;
@@ -359,9 +360,9 @@ pack_reinit(
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
 pack_write_input(
-          uint8 address,
-          const uint8* const pSendData,
-          uint16* const pSendLength,
+          uint8_t address,
+          const uint8_t* const pSendData,
+          uint16_t* const pSendLength,
           bool first,
           bool more
           )
@@ -372,10 +373,10 @@ pack_write_input(
          (*pSendLength != 0)) {
 
           // Initialize the byte index
-          uint8 byteIndex = 0;
+          uint8_t byteIndex = 0;
 
           SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_WRITE | CONTROL_BYTE_START;
-          SEND_PACKET[byteIndex++] = (uint8)*pSendLength;
+          SEND_PACKET[byteIndex++] = (uint8_t)*pSendLength;
 
           // Check to see if this is the last packet
           if (more)
@@ -412,9 +413,9 @@ pack_write_input(
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
 unpack_write_output(
-          const uint16* const pWriteLength,
-          const uint16* const pReadLength,
-          uint16* const pBytesLeft
+          const uint16_t* const pWriteLength,
+          const uint16_t* const pReadLength,
+          uint16_t* const pBytesLeft
           )
 {
      // Check the parameters
@@ -465,8 +466,8 @@ unpack_write_output(
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
 pack_read_input (
-          uint8 address,
-          uint16* const pReadLength
+          uint8_t address,
+          uint16_t* const pReadLength
           )
 {
 
@@ -474,10 +475,10 @@ pack_read_input (
      if ((pReadLength != NULL) &&
          (*pReadLength != 0)) {
 
-          uint8 byteIndex = 0;
+          uint8_t byteIndex = 0;
 
           SEND_PACKET[byteIndex++] = CONTROL_BYTE_I2C_READ | CONTROL_BYTE_START | CONTROL_BYTE_STOP;
-          SEND_PACKET[byteIndex++] = (uint8)*pReadLength;
+          SEND_PACKET[byteIndex++] = (uint8_t)*pReadLength;
 
           // We need to send the address
           SEND_PACKET[byteIndex++] = address;
@@ -500,8 +501,8 @@ pack_read_input (
 //-----------------------------------------------------------------------------
 static Cy3240_Error_t
 unpack_read_output (
-          uint8* const pData,
-          const uint16* const pLength
+          uint8_t* const pData,
+          const uint16_t* const pLength
           )
 {
      // Check the parameters
@@ -536,8 +537,8 @@ reconfigure_power(
           )
 {
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     uint16 writeLength = 0;
-     uint16 readLength = 0;
+     uint16_t writeLength = 0;
+     uint16_t readLength = 0;
 
      result = pack_reconfigure_power(
                power,
@@ -586,8 +587,8 @@ reconfigure_clock(
           )
 {
      Cy3240_Error_t result = CY3240_ERROR_OK;
-     uint16 writeLength = 0;
-     uint16 readLength = 0;
+     uint16_t writeLength = 0;
+     uint16_t readLength = 0;
 
      result = pack_reconfigure_clock(
                clock,
@@ -641,8 +642,8 @@ cy3240_restart(
 
           Cy3240_Error_t result = CY3240_ERROR_OK;
 
-          uint16 writeLength = 0;
-          uint16 readLength = 0;
+          uint16_t writeLength = 0;
+          uint16_t readLength = 0;
 
           // TODO: Check the state machine
           if CY3240_SUCCESS(result) {
@@ -704,8 +705,8 @@ cy3240_reinit(
 
           Cy3240_Error_t result = CY3240_ERROR_OK;
 
-          uint16 writeLength = 0;
-          uint16 readLength = 0;
+          uint16_t writeLength = 0;
+          uint16_t readLength = 0;
 
           if CY3240_SUCCESS(result) {
 
@@ -795,9 +796,9 @@ cy3240_reconfigure(
 Cy3240_Error_t
 cy3240_write(
           int handle,
-          uint8 address,
-          const uint8* const pData,
-          uint16* const pLength
+          uint8_t address,
+          const uint8_t* const pData,
+          uint16_t* const pLength
           )
 {
 
@@ -812,10 +813,10 @@ cy3240_write(
           Cy3240_Error_t result = CY3240_ERROR_OK;
 
           // TODO: Move the WriteStart point after each write
-          uint16 writeLength;
-          uint16 readLength;
-          uint8* pWriteStart = pData;
-          uint16 bytesLeft = *pLength;
+          uint16_t writeLength;
+          uint16_t readLength;
+          uint8_t* pWriteStart = pData;
+          uint16_t bytesLeft = *pLength;
 
           bool first = true;
 
@@ -890,9 +891,9 @@ cy3240_write(
 Cy3240_Error_t
 cy3240_read(
           int handle,
-          uint8 address,
-          uint8* const pData,
-          uint16* const pLength
+          uint8_t address,
+          uint8_t* const pData,
+          uint16_t* const pLength
           )
 {
 
@@ -906,10 +907,10 @@ cy3240_read(
 
           Cy3240_Error_t result = CY3240_ERROR_OK;
 
-          uint16 readLength;
-          uint8* pReadStart = pData;
-          const uint16 writeLength = READ_INPUT_PACKET_SIZE;
-          uint16 bytesLeft = *pLength;
+          uint16_t readLength;
+          uint8_t* pReadStart = pData;
+          const uint16_t writeLength = READ_INPUT_PACKET_SIZE;
+          uint16_t bytesLeft = *pLength;
 
           // Loop while there is still data to read
           while (CY3240_SUCCESS(result) && (bytesLeft > 0)) {

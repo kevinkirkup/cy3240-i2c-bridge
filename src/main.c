@@ -15,6 +15,7 @@
 //@{
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h> /* for getopt() */
 #include <time.h>
@@ -89,8 +90,8 @@ parse_arguments (
 //-----------------------------------------------------------------------------
 void
 print_buffer(
-          const uint8* const buffer,
-          uint16 length
+          const uint8_t* const buffer,
+          uint16_t length
           )
 {
      int count;
@@ -143,8 +144,8 @@ main(
      hid_return ret;
      int handle = 0;
 
-     uint8 data[8] = {0};
-     uint16 length = 0;
+     uint8_t data[8] = {0};
+     uint16_t length = 0;
 
      // Parse the command line arguments
      parse_arguments(

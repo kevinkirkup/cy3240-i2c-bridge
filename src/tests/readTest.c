@@ -24,8 +24,8 @@
 //@{
 
 // The location where data should be written in the send buffer
-uint8* pRead;
-uint8* pWrite;
+uint8_t* pRead;
+uint8_t* pWrite;
 
 //@} End of Data
 
@@ -175,8 +175,8 @@ testReadError(
           void
           )
 {
-     uint8 data[8] = {0};
-     uint16 length = 8;
+     uint8_t data[8] = {0};
+     uint16_t length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
      int handle = 0;
 
@@ -239,8 +239,8 @@ testReadSmall (
           void
           )
 {
-     uint8 data[8] = {0};
-     uint16 length = 8;
+     uint8_t data[8] = {0};
+     uint16_t length = 8;
      Cy3240_Error_t result = CY3240_ERROR_OK;
      int handle = (int)pMyData;
 
@@ -281,8 +281,8 @@ testReadMedium (
           void
           )
 {
-     uint8 data[CY3240_MAX_READ_BYTES] = {0};
-     uint16 length = CY3240_MAX_READ_BYTES;
+     uint8_t data[CY3240_MAX_READ_BYTES] = {0};
+     uint16_t length = CY3240_MAX_READ_BYTES;
      Cy3240_Error_t result = CY3240_ERROR_OK;
      int handle = (int)pMyData;
 
@@ -323,8 +323,8 @@ testReadLarge (
           void
           )
 {
-     uint8 data[69] = {0};
-     uint16 length = 69;
+     uint8_t data[69] = {0};
+     uint16_t length = 69;
      Cy3240_Error_t result = CY3240_ERROR_OK;
      int handle = (int)pMyData;
 
