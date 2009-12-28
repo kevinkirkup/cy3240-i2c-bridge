@@ -70,8 +70,8 @@ extern uint8_t RECEIVE_BUFFER[SEND_BUFFER_SIZE];
 //-----------------------------------------------------------------------------
 hid_return
 testGenericInit(
-          void
-          );
+        void
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -83,8 +83,8 @@ testGenericInit(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericClose(
-          HIDInterface *const hidif
-          );
+        HIDInterface *const hidif
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -96,12 +96,12 @@ testGenericClose(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericRead(
-          HIDInterface* const hidif,
-          unsigned int const ep,
-          char* const bytes,
-          unsigned int const size,
-          unsigned int const timeout
-          );
+        HIDInterface* const hidif,
+        unsigned int const ep,
+        char* const bytes,
+        unsigned int const size,
+        unsigned int const timeout
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -113,12 +113,12 @@ testGenericRead(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericWrite(
-          HIDInterface* const hidif,
-          unsigned int const ep,
-          const char* bytes,
-          unsigned int const size,
-          unsigned int const timeout
-          );
+        HIDInterface* const hidif,
+        unsigned int const ep,
+        const char* bytes,
+        unsigned int const size,
+        unsigned int const timeout
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -130,8 +130,8 @@ testGenericWrite(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericCleanup(
-          void
-          );
+        void
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -143,8 +143,8 @@ testGenericCleanup(
 //-----------------------------------------------------------------------------
 void
 testGenericDeleteIf(
-          HIDInterface **const hidif
-          );
+        HIDInterface **const hidif
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -156,11 +156,11 @@ testGenericDeleteIf(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericForceOpen(
-          HIDInterface *const hidif,
-          int const interface,
-          HIDInterfaceMatcher const *const matcher,
-          unsigned short retries
-          );
+        HIDInterface *const hidif,
+        int const interface,
+        HIDInterfaceMatcher const *const matcher,
+        unsigned short retries
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -172,8 +172,8 @@ testGenericForceOpen(
 //-----------------------------------------------------------------------------
 HIDInterface *
 testGenericNewHidInterface(
-          void
-          );
+        void
+        );
 
 //@} End of Methods
 
@@ -191,8 +191,8 @@ testGenericNewHidInterface(
 //-----------------------------------------------------------------------------
 hid_return
 testInit(
-          void
-          );
+        void
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -204,12 +204,12 @@ testInit(
 //-----------------------------------------------------------------------------
 hid_return
 testRead(
-          HIDInterface* const hidif,
-          unsigned int const ep,
-          char* const bytes,
-          unsigned int const size,
-          unsigned int const timeout
-          );
+        HIDInterface* const hidif,
+        unsigned int const ep,
+        char* const bytes,
+        unsigned int const size,
+        unsigned int const timeout
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -221,12 +221,12 @@ testRead(
 //-----------------------------------------------------------------------------
 hid_return
 testWrite(
-          HIDInterface* const hidif,
-          unsigned int const ep,
-          const char* bytes,
-          unsigned int const size,
-          unsigned int const timeout
-          );
+        HIDInterface* const hidif,
+        unsigned int const ep,
+        const char* bytes,
+        unsigned int const size,
+        unsigned int const timeout
+        );
 
 //@} End of Methods
 

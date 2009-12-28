@@ -68,7 +68,7 @@ AC_CHECK_LIB([usb], [libusb_alloc_transfer])
 # ------------------------------
 # Checks for header files.
 # ------------------------------
-AC_CHECK_HEADERS([stddef.h stdint.h string.h unistd.h])
+AC_CHECK_HEADERS([stddef.h stdint.h stdlib.h string.h unistd.h])
 
 # ------------------------------
 # Checks for typedefs, structures, and compiler characteristics.

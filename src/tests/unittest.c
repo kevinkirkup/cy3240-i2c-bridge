@@ -51,12 +51,12 @@ uint8_t RECEIVE_BUFFER[RECEIVE_BUFFER_SIZE] = {0};
 //-----------------------------------------------------------------------------
 hid_return
 testGenericInit(
-          void
-          )
+        void
+        )
 {
-     DBG(printf("HID Init\n");)
+    DBG(printf("Generic HID Init\n");)
 
-     return HID_RET_SUCCESS;
+    return HID_RET_SUCCESS;
 }   /* -----  end of static function init_test  ----- */
 
 //-----------------------------------------------------------------------------
@@ -69,12 +69,12 @@ testGenericInit(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericClose(
-          HIDInterface *const hidif
-          )
+        HIDInterface *const hidif
+        )
 {
-     DBG(printf("HID Close\n");)
+    DBG(printf("Generic HID Close\n");)
 
-     return HID_RET_SUCCESS;
+    return HID_RET_SUCCESS;
 }   /* -----  end of static function init_test  ----- */
 
 //-----------------------------------------------------------------------------
@@ -87,19 +87,19 @@ testGenericClose(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericWrite(
-          HIDInterface* const hidif,
-          unsigned int const ep,
-          const char* bytes,
-          unsigned int const size,
-          unsigned int const timeout
-          )
+        HIDInterface* const hidif,
+        unsigned int const ep,
+        const char* bytes,
+        unsigned int const size,
+        unsigned int const timeout
+        )
 {
-     DBG(printf("HID Write\n");)
+    DBG(printf("Generic HID Write\n");)
 
-     // Write the data to the send buffer
-     memcpy(SEND_BUFFER, bytes, size);
+    // Write the data to the send buffer
+    memcpy(SEND_BUFFER, bytes, size);
 
-     return HID_RET_SUCCESS;
+    return HID_RET_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -112,22 +112,22 @@ testGenericWrite(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericRead(
-          HIDInterface* const hidif,
-          unsigned int const ep,
-          char* const bytes,
-          unsigned int const size,
-          unsigned int const timeout
-          )
+        HIDInterface* const hidif,
+        unsigned int const ep,
+        char* const bytes,
+        unsigned int const size,
+        unsigned int const timeout
+        )
 {
-     DBG(printf("HID Read\n");)
+    DBG(printf("Generic HID Read\n");)
 
-     // Copy the acknowledgments in the return buffer
-     memcpy(bytes, RECEIVE_BUFFER, size);
+    // Copy the acknowledgments in the return buffer
+    memcpy(bytes, RECEIVE_BUFFER, size);
 
-     // Set the status byte to something unique
-     bytes[0] = 0x07;
+    // Set the status byte to something unique
+    bytes[0] = 0x07;
 
-     return HID_RET_SUCCESS;
+    return HID_RET_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -140,12 +140,12 @@ testGenericRead(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericCleanup(
-          void
-          )
+        void
+        )
 {
-     DBG(printf("HID Cleanup\n");)
+    DBG(printf("Generic HID Cleanup\n");)
 
-     return HID_RET_SUCCESS;
+    return HID_RET_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -158,12 +158,12 @@ testGenericCleanup(
 //-----------------------------------------------------------------------------
 void
 testGenericDeleteIf(
-          HIDInterface **const hidif
-          )
+        HIDInterface **const hidif
+        )
 {
-     DBG(printf("HID DeleteIf\n");)
+    DBG(printf("Generic HID DeleteIf\n");)
 
-     return;
+    return;
 }
 
 //-----------------------------------------------------------------------------
@@ -176,15 +176,15 @@ testGenericDeleteIf(
 //-----------------------------------------------------------------------------
 hid_return
 testGenericForceOpen(
-          HIDInterface *const hidif,
-          int const interface,
-          HIDInterfaceMatcher const *const matcher,
-          unsigned short retries
-          )
+        HIDInterface *const hidif,
+        int const interface,
+        HIDInterfaceMatcher const *const matcher,
+        unsigned short retries
+        )
 {
-     DBG(printf("HID Force Open\n");)
+    DBG(printf("Generic HID Force Open\n");)
 
-     return HID_RET_SUCCESS;
+    return HID_RET_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -197,13 +197,13 @@ testGenericForceOpen(
 //-----------------------------------------------------------------------------
 HIDInterface *
 testGenericNewHidInterface(
-          void
-          )
+        void
+        )
 {
-     DBG(printf("HID new Interface\n");)
+    DBG(printf("Generic HID new Interface\n");)
 
-     // Give a constant for the interface type to avoid memory leak
-     return (HIDInterface*)0x01;
+    // Give a constant for the interface type to avoid memory leak
+    return (HIDInterface*)0x01;
 }
 
 //@} End of Methods

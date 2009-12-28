@@ -44,10 +44,10 @@ extern "C" {
 //-----------------------------------------------------------------------------
 bool
 cy3240_util_match_serial_number(
-    struct usb_dev_handle* usbdev,
-    void* custom,
-    unsigned int len
-    );
+        struct usb_dev_handle* usbdev,
+        void* custom,
+        unsigned int len
+        );
 
 //@} End of Methods
 

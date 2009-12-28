@@ -54,28 +54,28 @@
  */
 //-----------------------------------------------------------------------------
 static void
-parse_arguments (
-          int argc,
-          char *argv[],
-          int *iface_num
-          )
+parse_arguments(
+        int argc,
+        char *argv[],
+        int *iface_num
+        )
 {
-     char *vendor;
-     char *product;
-     int flag;
+    char *vendor;
+    char *product;
+    int flag;
 
-     // Iterate through all of the command line arguments
-     while((flag = getopt(argc, argv, "i:")) != -1) {
+    // Iterate through all of the command line arguments
+    while((flag = getopt(argc, argv, "i:")) != -1) {
 
-          // Check the current argument
-          switch (flag) {
+        // Check the current argument
+        switch (flag) {
 
-               // The usb interface
-               case 'i':
-                    iface_num = atoi(optarg);
-                    break;
-          }
-     }
+            // The usb interface
+            case 'i':
+                iface_num = atoi(optarg);
+                break;
+        }
+    }
 
 }   /* -----  end of static function parse_arguments  ----- */
 
@@ -90,29 +90,29 @@ parse_arguments (
 //-----------------------------------------------------------------------------
 void
 print_buffer(
-          const uint8_t* const buffer,
-          uint16_t length
-          )
+        const uint8_t* const buffer,
+        uint16_t length
+        )
 {
-     int count;
+    int count;
 
-     printf("\nBuffer: (Length=%i)", length);
+    printf("\nBuffer: (Length=%i)", length);
 
-     for (count = 0; count < length; count ++) {
+    for (count = 0; count < length; count ++) {
 
-          if(count % 16 == 0) {
-               printf("\n0%d: ", (int)(count / 16));
-          }
+        if(count % 16 == 0) {
+            printf("\n0%d: ", (int)(count / 16));
+        }
 
-          if(count % 4 == 0) {
-               printf(" %02x",buffer[count]);
+        if(count % 4 == 0) {
+            printf(" %02x",buffer[count]);
 
-          } else {
-               printf("%02x",buffer[count]);
-          }
-     }
+        } else {
+            printf("%02x",buffer[count]);
+        }
+    }
 
-     printf("\n");
+    printf("\n");
 }
 
 
@@ -134,117 +134,117 @@ print_buffer(
 //-----------------------------------------------------------------------------
 int
 main(
-    int argc,
-    char *argv[]
-    )
+        int argc,
+        char *argv[]
+        )
 {
-     int iface_num = 0;
-     int retry;
+    int iface_num = 0;
+    int retry;
 
-     hid_return ret;
-     int handle = 0;
+    hid_return ret;
+    int handle = 0;
 
-     uint8_t data[8] = {0};
-     uint16_t length = 0;
+    uint8_t data[8] = {0};
+    uint16_t length = 0;
 
-     // Parse the command line arguments
-     parse_arguments(
-               argc,
-               argv,
-               &iface_num);
+    // Parse the command line arguments
+    parse_arguments(
+            argc,
+            argv,
+            &iface_num);
 
-     fprintf(stderr, "Interface: %i\n", iface_num);
+    fprintf(stderr, "Interface: %i\n", iface_num);
 
-     // Initialize the device
-     cy3240_util_factory(
-               &handle,
-               iface_num,
-               1000,
-               CY3240_POWER_5V,
-               CY3240_BUS_I2C,
-               CY3240_CLOCK__100kHz
-               );
+    // Initialize the device
+    cy3240_factory(
+            &handle,
+            iface_num,
+            1000,
+            CY3240_POWER_5V,
+            CY3240_BUS_I2C,
+            CY3240_CLOCK__100kHz
+            );
 
-     // Open the device
-     cy3240_open(handle);
+    // Open the device
+    cy3240_open(handle);
 
-     /* Read the configuration from an undefined address
-      * I think this is M8C_SetBank1
-      */
-     length = sizeof(data);
-     cy3240_read(
-               handle,
-               CONTROL_1,
-               data,
-               &length);
+    /* Read the configuration from an undefined address
+     * I think this is M8C_SetBank1
+     */
+    length = sizeof(data);
+    cy3240_read(
+            handle,
+            CONTROL_1,
+            data,
+            &length);
 
-     print_buffer(&data, length);
+    print_buffer(&data, length);
 
-     usleep(SLEEP_BETWEEN_CMD);
+    usleep(SLEEP_BETWEEN_CMD);
 
-     // Configure the bridge controller using the default settings
-     cy3240_reconfigure(
-               handle,
-               CY3240_POWER_5V,
-               CY3240_BUS_I2C,
-               CY3240_CLOCK__100kHz);
+    // Configure the bridge controller using the default settings
+    cy3240_reconfigure(
+            handle,
+            CY3240_POWER_5V,
+            CY3240_BUS_I2C,
+            CY3240_CLOCK__100kHz);
 
-     usleep(SLEEP_BETWEEN_CMD);
+    usleep(SLEEP_BETWEEN_CMD);
 
-     /* blink LED 1 */
-     for (retry = 0; retry < 10; retry++) {
+    /* blink LED 1 */
+    for (retry = 0; retry < 10; retry++) {
 
-          data[LED_NUMBER] = 0x01;
-          data[BRIGHTNESS] = ~data[BRIGHTNESS];
-          data[UNK_7] = 0x01;
+        data[LED_NUMBER] = 0x01;
+        data[BRIGHTNESS] = ~data[BRIGHTNESS];
+        data[UNK_7] = 0x01;
 
-          length = sizeof(data);
+        length = sizeof(data);
 
-          cy3240_write(
-                    handle,
-                    PSOC,
-                    data,
-                    &length);
+        cy3240_write(
+                handle,
+                PSOC,
+                data,
+                &length);
 
 
-          usleep(BLINK_DELAY);
-     }
+        usleep(BLINK_DELAY);
+    }
 
-     /* blink LED 2 */
-     for (retry = 0; retry < 10; retry++) {
+    /* blink LED 2 */
+    for (retry = 0; retry < 10; retry++) {
 
-          data[LED_NUMBER] = 0x02;
-          data[BRIGHTNESS] = ~data[BRIGHTNESS];
-          data[UNK_7] = 0x01;
+        data[LED_NUMBER] = 0x02;
+        data[BRIGHTNESS] = ~data[BRIGHTNESS];
+        data[UNK_7] = 0x01;
 
-          length = sizeof(data);
+        length = sizeof(data);
 
-          cy3240_write(
-                    handle,
-                    PSOC,
-                    data,
-                    &length);
+        cy3240_write(
+                handle,
+                PSOC,
+                data,
+                &length);
 
-          usleep(BLINK_DELAY);
+        usleep(BLINK_DELAY);
 
-     }
+    }
 
-     /* Turn off debug messages */
-     hid_set_debug(HID_DEBUG_NONE);
+    /* Turn off debug messages */
+    hid_set_debug(HID_DEBUG_NONE);
 
-     // Reconfigure the bridge controller
-     cy3240_reconfigure(
-               handle,
-               CY3240_POWER_EXTERNAL,
-               CY3240_BUS_I2C,
-               CY3240_CLOCK__100kHz);
+    // Reconfigure the bridge controller
+    cy3240_reconfigure(
+            handle,
+            CY3240_POWER_EXTERNAL,
+            CY3240_BUS_I2C,
+            CY3240_CLOCK__100kHz);
 
-     usleep(SLEEP_BETWEEN_CMD);
+    usleep(SLEEP_BETWEEN_CMD);
 
-     // Close the device
-     cy3240_close(handle);
+    // Close the device
+    cy3240_close(handle);
 
-     return 0;
+    return 0;
 }
 
 //@} End of Methods

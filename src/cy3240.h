@@ -67,8 +67,8 @@ extern "C" {
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_restart(
-          int handle
-          );
+        int handle
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -83,11 +83,11 @@ cy3240_restart(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_reconfigure(
-          int handle,
-          Cy3240_Power_t power,
-          Cy3240_Bus_t bus,
-          Cy3240_I2C_ClockSpeed_t clock
-          );
+        int handle,
+        Cy3240_Power_t power,
+        Cy3240_Bus_t bus,
+        Cy3240_I2C_ClockSpeed_t clock
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -99,8 +99,8 @@ cy3240_reconfigure(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_reinit(
-          int handle
-          );
+        int handle
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -115,11 +115,11 @@ cy3240_reinit(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_write(
-          int handle,
-          uint8_t address,
-          const uint8_t* const pData,
-          uint16_t* const pLength
-          );
+        int handle,
+        uint8_t address,
+        const uint8_t* const pData,
+        uint16_t* const pLength
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -134,11 +134,11 @@ cy3240_write(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_read(
-          int handle,
-          uint8_t address,
-          uint8_t* const pData,
-          uint16_t* const pLength
-          );
+        int handle,
+        uint8_t address,
+        uint8_t* const pData,
+        uint16_t* const pLength
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -150,8 +150,8 @@ cy3240_read(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_open(
-          int handle
-          );
+        int handle
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -163,8 +163,8 @@ cy3240_open(
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
 cy3240_close(
-          int handle
-          );
+        int handle
+        );
 
 //-----------------------------------------------------------------------------
 /**
@@ -180,14 +180,14 @@ cy3240_close(
  */
 //-----------------------------------------------------------------------------
 Cy3240_Error_t
-cy3240_util_factory (
-          int* pHandle,
-          int iface_number,
-          int timeout,
-          Cy3240_Power_t power,
-          Cy3240_Bus_t bus,
-          Cy3240_I2C_ClockSpeed_t clock
-          );
+cy3240_factory(
+        int* pHandle,
+        int iface_number,
+        int timeout,
+        Cy3240_Power_t power,
+        Cy3240_Bus_t bus,
+        Cy3240_I2C_ClockSpeed_t clock
+        );
 
 //@} End of Methods
 

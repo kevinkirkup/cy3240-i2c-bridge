@@ -3,6 +3,13 @@ lib_LTLIBRARIES = libcy3240.la
 
 ACLOCAL_AMFLAGS= -I m4
 
+AM_CPPFLAGS=-I aceunit/src/native
+AM_CPPFLAGS+=-I src
+AM_CPPFLAGS+=-DACEUNIT_SUITES
+AM_CPPFLAGS+=-I/usr/lib/jvm/default-java/include
+AM_CPPFLAGS+=-I/usr/lib/jvm/default-java/include/linux
+
+# CY3240 Shared Library
 libcy3240_la_SOURCES = \
 	src/cy3240.c \
 	src/cy3240.h \
@@ -12,19 +19,20 @@ libcy3240_la_SOURCES = \
 	src/cy3240_debug.h \
 	src/cy3240_packet.h \
 	src/cy3240_private_types.h \
-	src/cy3240_types.h
+	src/cy3240_types.h \
+	src/jni/native_cy3240bridgecontroller.c \
+	src/jni/native_cy3240bridgecontroller.h
 
 libcy3240_la_LIBADD= -lusb -lhid
 
+# cy3240-i2c Test Application
 cy3240_i2c_SOURCES = \
 	src/main.c \
 	src/i2c_demo.h
 
-
 cy3240_i2c_LDADD= -lusb -lhid -lcy3240
 
-AM_CPPFLAGS=-I aceunit/src/native -I src -DACEUNIT_SUITES
-
+# Unit Test Application
 runTests_SOURCES = \
 	src/cy3240_private_types.h \
 	src/tests/Suite1.c \
