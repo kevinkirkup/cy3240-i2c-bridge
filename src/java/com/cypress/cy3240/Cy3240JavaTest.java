@@ -32,7 +32,7 @@ public class Cy3240JavaTest {
         c.open();
 
         // Create the data array
-        byte[] data = new byte[128];
+        byte[] data = new byte[8];
 
         // Configure the Bridge controller
         c.reconfigure(Cy3240PowerMode.CY3240_POWER_5V, Cy3240BusMode.CY3240_BUS_I2C,
@@ -42,6 +42,19 @@ public class Cy3240JavaTest {
 
             Thread.sleep(Cy3240BridgeController.SLEEP_BETWEEN_CMD);
 
+            // Blink the first led
+            for (int retry = 0; retry < 10; retry++) {
+
+                data[5] = 0x01;
+                data[6] = (byte)~data[6];
+                data[7] = 0x01;
+
+                c.write((byte)0x00, data);
+
+                Thread.sleep(BLINK_DELAY);
+
+            }
+            
             // Blink the first led
             for (int retry = 0; retry < 10; retry++) {
 

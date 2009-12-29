@@ -435,6 +435,8 @@ unpack_write_output(
         // Loop through the pack acknowledgments
         for (x = OUTPUT_PACKET_INDEX_STATUS + 1; x < *pReadLength; x++) {
 
+            DBG(printf("RECV_PACKET[%i]=%02x\n", x, RECV_PACKET[x]);)
+
             // Check for ack
             if (RECV_PACKET[x] == TX_ACK) {
 
@@ -445,7 +447,7 @@ unpack_write_output(
 
             // Nack
             } else {
-                printf(" Nack: %i", x);
+                printf(" Nack: %i\n", x);
                 return CY3240_ERROR_TX;
             }
         }
@@ -548,7 +550,7 @@ reconfigure_power(
             &writeLength);
 
     if CY3240_FAILURE(result)
-        printf("\nFailed to pack send data in write input packet: %i", result);
+        printf("Failed to pack send data in write input packet: %i\n", result);
 
     if (CY3240_SUCCESS(result)) {
 
@@ -564,7 +566,7 @@ reconfigure_power(
                 &readLength);
 
         if CY3240_FAILURE(result)
-            printf("\nFailed to transmit write packet");
+            printf("Failed to transmit write packet\n");
     }
 
     // Set the power mode
@@ -598,7 +600,7 @@ reconfigure_clock(
             &writeLength);
 
     if CY3240_FAILURE(result)
-        printf("\nFailed to pack send data in write input packet: %i", result);
+        printf("Failed to pack send data in write input packet: %i\n", result);
 
     if (CY3240_SUCCESS(result)) {
 
@@ -614,7 +616,7 @@ reconfigure_clock(
                 &readLength);
 
         if CY3240_FAILURE(result)
-            printf("\nFailed to transmit packet");
+            printf("Failed to transmit packet\n");
     }
 
     // Set the clock rate
@@ -658,7 +660,7 @@ cy3240_restart(
                     &writeLength);
 
             if CY3240_FAILURE(result)
-                printf("\nFailed to pack restart data in write input packet: %i", result);
+                printf("Failed to pack restart data in write input packet: %i\n", result);
         }
 
         // Send the message
@@ -676,7 +678,7 @@ cy3240_restart(
                     &readLength);
 
             if CY3240_FAILURE(result)
-                printf("\nFailed to transmit restart packet");
+                printf("Failed to transmit restart packet\n");
         }
 
         // Decode the response
@@ -688,7 +690,7 @@ cy3240_restart(
                     NULL);
 
             if CY3240_FAILURE(result)
-                printf("\nSlave failed to Ack restart");
+                printf("Slave failed to Ack restart\n");
         }
 
         pthread_mutex_unlock(&mutex);
@@ -726,7 +728,7 @@ cy3240_reinit(
                     &writeLength);
 
             if CY3240_FAILURE(result)
-                printf("\nFailed to pack reinit data in write input packet: %i", result);
+                printf("Failed to pack reinit data in write input packet: %i\n", result);
         }
 
         // Write the packet
@@ -744,7 +746,7 @@ cy3240_reinit(
                     &readLength);
 
             if CY3240_FAILURE(result)
-                printf("\nFailed to transmit reinit packet");
+                printf("Failed to transmit reinit packet\n");
         }
 
         pthread_mutex_lock(&mutex);
@@ -783,7 +785,7 @@ cy3240_reconfigure(
                     power);
 
             if CY3240_FAILURE(result)
-                printf("\nFailed to set the requested power mode: %02x", power);
+                printf("Failed to set the requested power mode: %02x\n", power);
         }
 
         // Set the clock mode
@@ -794,7 +796,7 @@ cy3240_reconfigure(
                      clock);
 
              if CY3240_FAILURE(result)
-                 printf("\nFailed to set the requested clock mode: %02x", clock);
+                 printf("Failed to set the requested clock mode: %02x\n", clock);
 
         }
 
@@ -855,7 +857,7 @@ cy3240_write(
             else
                  more = false;
 
-            // Set the write and read length to tranfer one packet at a time
+            // Set the write and read length to transfer one packet at a time
             writeLength = MIN(bytesLeft, CY3240_MAX_WRITE_BYTES);
             readLength = writeLength + CY3240_STATUS_CODE_SIZE;
 
@@ -872,7 +874,7 @@ cy3240_write(
                         more);
 
                 if CY3240_FAILURE(result)
-                    printf("\nFailed to pack send data in write input packet: %i", result);
+                    printf("Failed to pack send data in write input packet: %i\n", result);
             }
 
             if (CY3240_SUCCESS(result)) {
@@ -886,7 +888,7 @@ cy3240_write(
                         &readLength);
 
                 if CY3240_FAILURE(result)
-                    printf("\nFailed to transmit write packet");
+                    printf("Failed to transmit write packet\n");
             }
 
             if (CY3240_SUCCESS(result)) {
@@ -898,7 +900,7 @@ cy3240_write(
                         &bytesLeft);
 
                 if CY3240_FAILURE(result)
-                    printf("\nFailed to transmit all data");
+                    printf("Failed to transmit all data\n");
             }
 
             // No longer the first time
@@ -954,7 +956,7 @@ cy3240_read(
                         &readLength);
 
                 if CY3240_FAILURE(result)
-                    printf("\nFailed to pack read input packet: %i", result);
+                    printf("Failed to pack read input packet: %i\n", result);
             }
 
             // Send the data
@@ -969,7 +971,7 @@ cy3240_read(
                         &readLength);
 
                 if CY3240_FAILURE(result)
-                    printf("\nFailed to transmit read packet");
+                    printf("Failed to transmit read packet\n");
             }
 
             // unpack the result
@@ -981,7 +983,7 @@ cy3240_read(
                         &readLength);
 
                 if CY3240_FAILURE(result) {
-                    printf("\nFailed to read data");
+                    printf("Failed to read data\n");
 
                 } else {
                     pReadStart += readLength;
